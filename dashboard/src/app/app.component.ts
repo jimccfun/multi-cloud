@@ -6,6 +6,8 @@ import { I18NService, Consts, ParamStorService } from 'app/shared/api';
 import { I18nPluralPipe } from '@angular/common';
 import { MenuItem, SelectItem } from './components/common/api';
 
+let d3 = window["d3"];
+
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -28,6 +30,8 @@ export class AppComponent implements OnInit, AfterViewInit{
 
     currentTenant: string="";
 
+    isHomePage: boolean = true;
+
     showLoginAnimation: boolean=false;
 
     showLogoutAnimation: boolean=false;
@@ -48,7 +52,7 @@ export class AppComponent implements OnInit, AfterViewInit{
     menuItems_tenant = [
         {
             "title": "Home",
-            "description": "Resources statistics",
+            "description": "Resource statistics",
             "routerLink": "/home"
         },
         {
@@ -61,27 +65,27 @@ export class AppComponent implements OnInit, AfterViewInit{
     menuItems_admin = [
         {
             "title": "Home",
-            "description": "Resources statistics",
+            "description": "Resource statistics",
             "routerLink": "/home"
         },
         {
-            "title": "Volume",
-            "description": "Block storage resources",
+            "title": "Resource",
+            "description": "Volumes / Buckets",
             "routerLink": "/block"
         },
-        // {
-        //     "title": "Multi-Cloud Service",
-        //     "description": "5 replications, 1 migrations",
-        //     "routerLink": "/cloud"
-        // },
+        {
+            "title": "Dataflow",
+            "description": "Through migration / replication capability.",
+            "routerLink": "/dataflow"
+        },
         {
             "title": "Profile",
             "description": "Block profiles",
             "routerLink": "/profile"
         },
         {
-            "title": "Resource",
-            "description": "Regions, availability zones and storages",
+            "title": "Infrastructure",
+            "description": "Regions, availability zones and storage",
             "routerLink": "/resource"
         },
         {
@@ -94,7 +98,14 @@ export class AppComponent implements OnInit, AfterViewInit{
     activeItem: any;
 
     private msgs: any = [{ severity: 'warn', summary: 'Warn Message', detail: 'There are unsaved changes'}];
-
+    // param
+    svg_height = 150;
+    svg_width = 2000;
+    wave_data = [[],[]];
+    area = d3.area().y0(this.svg_height).curve(d3.curveBasis);
+    svg_paths = [];
+    max = 800;  //speed
+    d;
     constructor(
         private el: ElementRef,
         private viewContainerRef: ViewContainerRef,
@@ -102,8 +113,8 @@ export class AppComponent implements OnInit, AfterViewInit{
         private router: Router,
         private paramStor: ParamStorService,
         public I18N: I18NService
-    ){}
-    
+    ){
+    }
     ngOnInit() {
         let currentUserInfo = this.paramStor.CURRENT_USER();
         if(currentUserInfo != undefined && currentUserInfo != ""){
@@ -338,7 +349,7 @@ export class AppComponent implements OnInit, AfterViewInit{
                 }
 
                 this.isLogin = true;
-                this.router.navigateByUrl("home");
+                this.router.navigateByUrl("/home");
                 this.activeItem = this.menuItems[0];
 
                 // annimation for after login
@@ -395,6 +406,11 @@ export class AppComponent implements OnInit, AfterViewInit{
 
     menuItemClick(event, item) {
         this.activeItem = item;
+        if(item.routerLink == "/home"){
+            this.isHomePage = true;
+        }else{
+            this.isHomePage = false;
+        }
     }
 
     supportCurrentBrowser(){
@@ -441,5 +457,32 @@ export class AppComponent implements OnInit, AfterViewInit{
         } else {
             return browserVersionArr[1];
         }
+    }
+
+    area_generator(data) {
+        let that = this;
+        var wave_height = 0.45; 
+        var area_data = data.map( function(y,i) {
+          return [i * that.d, that.svg_height*(1 - (wave_height*Math.sin(y*Math.PI) + 2)/3)];
+        } );
+        return function() {
+          return that.area(area_data);
+        };
+    }
+    renderWave() {
+        let that = this;
+        this.svg_paths.forEach(function(svg_path,i){
+          svg_path.attr('d', that.area_generator(that.wave_data[i]));
+          that.wave_data[i] = that.getNextData(that.wave_data[i]);
+        });
+        
+        setTimeout(function(){
+            that.renderWave();
+        }, 1000/60);
+    }
+    getNextData(data) {
+        var r = data.slice(1);
+        r.push(data[0]);
+        return r;
     }
 }

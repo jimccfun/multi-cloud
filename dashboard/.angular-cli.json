@@ -34,7 +34,8 @@
         "../node_modules/fullcalendar/dist/fullcalendar.js",
         "../node_modules/quill/dist/quill.js",
         "../node_modules/prismjs/prism.js",
-        "../node_modules/prismjs/components/prism-typescript.js"
+        "../node_modules/prismjs/components/prism-typescript.js",
+        "assets/business/d3/d3.v4.min.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {
