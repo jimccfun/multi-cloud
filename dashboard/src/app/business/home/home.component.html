@@ -1,4 +1,4 @@
-<div class="home-font-color-class" *ngIf="showAdminStatis">
+<div class="home-font-color-class ui-home-container" *ngIf="showAdminStatis">
     <div class="ui-home-backend-container">
         <div>
             <div class="cloud-center" (click)="showRegister()">
@@ -49,7 +49,7 @@
         <div style="flex:1;padding:20px;">
             <p-card title="Dataflow Capacity" styleClass="ui-card-shadow" >
                 <div class="ui-home-card">
-                    <p-chart type="line" [canvasHeight]="'120px'" [options]='lineOption' [data]="lineData"></p-chart>
+                    <p-chart type="line" [options]='lineOption' [data]="lineData"></p-chart>
                 </div>
             </p-card>
         </div>
@@ -71,26 +71,6 @@
         </div>
     </div>
     <p-home-dialog header="Register Storage Backend" [(visible)]="showRgister" [width]="510" [height]="790" modal="modal" [style]="{'opacity':'0.95','right':'46px','top':'80px','background':'rgb(44,63,97)'}" >
-        <div>
-            <div class="selected_obj_type">
-                <div>
-                    <img src='assets/business/images/common/bucket.svg'>
-                    <div style="text-align: center;">Object</div>
-                </div>
-            </div>
-            <div style="border: 1px solid #455b86;" class="selected_obj_type">
-                <div >
-                    <img style="filter:grayscale(1); opacity:0.4;" src='assets/business/images/common/filesystem.svg'>
-                    <div style="text-align: center;">File</div>
-                </div>
-            </div>
-            <div style="border: 1px solid #455b86;" class="selected_obj_type">
-                <div >
-                    <img style="filter:grayscale(1); opacity:0.4;" src='assets/business/images/common/volume.svg'>
-                    <div style="text-align: center;">Block</div>
-                </div>
-            </div>
-        </div>
         <form [grid]="{label: 'ui-g-5', content:'ui-g-20'}" [formGroup]="backendForm">
             <form-item label="Name" >
                 <input id="name" type="text" name="name" formControlName="name"  pInputText />

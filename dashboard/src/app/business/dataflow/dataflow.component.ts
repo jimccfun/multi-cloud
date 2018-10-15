@@ -1,12 +1,13 @@
-import { Router } from '@angular/router';
+import { Router,ActivatedRoute } from '@angular/router';
 import { Component, OnInit, ViewContainerRef, ViewChild, Directive, ElementRef, HostBinding, HostListener } from '@angular/core';
 import { I18NService } from 'app/shared/api';
 import { AppService } from 'app/app.service';
 import { trigger, state, style, transition, animate} from '@angular/animations';
 import { I18nPluralPipe } from '@angular/common';
+import { MigrationService } from './migration.service';
 
 @Component({
-    templateUrl: './service.component.html',
+    templateUrl: './dataflow.html',
     styleUrls: [],
     animations: [
         trigger('overlayState', [
@@ -19,7 +20,7 @@ import { I18nPluralPipe } from '@angular/common';
             transition('visible => hidden', animate('400ms ease-in')),
             transition('hidden => visible', animate('400ms ease-out'))
         ]),
-    
+
         trigger('notificationTopbar', [
             state('hidden', style({
             height: '0',
@@ -34,15 +35,24 @@ import { I18nPluralPipe } from '@angular/common';
         ])
     ]
 })
-export class ServiceComponent implements OnInit{
-
+export class DataflowComponent implements OnInit{
+    fromGroup:boolean=false;
+    migrationsCount = 0;
     constructor(
-        // private I18N: I18NService,
-        // private router: Router
+        public I18N: I18NService,
+        private router: Router,
+        private ActivatedRoute:ActivatedRoute,
+        private migrationService:MigrationService
     ){}
-    
+
     ngOnInit() {
-      
+        this.getCount();
+       
     }
-    
+    getCount(){
+        this.migrationService.getMigrationsCount().subscribe(res=>{
+            this.migrationsCount = res.json().count;
+        })
+    }
+
 }

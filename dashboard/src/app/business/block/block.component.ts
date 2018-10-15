@@ -36,6 +36,9 @@ import { I18nPluralPipe } from '@angular/common';
 })
 export class BlockComponent implements OnInit{
     fromGroup:boolean=false;
+    fromBuckets:boolean = false;
+    showDropDown:boolean = false;
+    countItems = [];
     constructor(
         public I18N: I18NService,
         private router: Router,
@@ -44,7 +47,10 @@ export class BlockComponent implements OnInit{
 
     ngOnInit() {
         this.ActivatedRoute.params.subscribe(
-            (params) => this.fromGroup = !!params.fromRoute
+            (params) => {
+                this.fromGroup = params.fromRoute === "fromGroup";
+                this.fromBuckets = params.fromRoute === "fromBuckets";
+            }
           );
     }
 
