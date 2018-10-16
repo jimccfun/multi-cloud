@@ -98,14 +98,7 @@ export class AppComponent implements OnInit, AfterViewInit{
     activeItem: any;
 
     private msgs: any = [{ severity: 'warn', summary: 'Warn Message', detail: 'There are unsaved changes'}];
-    // param
-    svg_height = 150;
-    svg_width = 2000;
-    wave_data = [[],[]];
-    area = d3.area().y0(this.svg_height).curve(d3.curveBasis);
-    svg_paths = [];
-    max = 800;  //speed
-    d;
+
     constructor(
         private el: ElementRef,
         private viewContainerRef: ViewContainerRef,
@@ -113,8 +106,17 @@ export class AppComponent implements OnInit, AfterViewInit{
         private router: Router,
         private paramStor: ParamStorService,
         public I18N: I18NService
-    ){
-    }
+    ){}
+
+    // 波浪动画参数
+    svg_height = 150;
+    svg_width = 2000;
+    wave_data = [[],[]];
+    area = d3.area().y0(this.svg_height).curve(d3.curveBasis);   //curve会进行平滑处理
+    svg_paths = [];
+    max = 800;  //控制速度
+    d;
+
     ngOnInit() {
         let currentUserInfo = this.paramStor.CURRENT_USER();
         if(currentUserInfo != undefined && currentUserInfo != ""){
@@ -130,6 +132,18 @@ export class AppComponent implements OnInit, AfterViewInit{
             this.isLogin = false;
             this.hideLoginForm = false;
         }
+
+        //波浪动画
+        for (var i=0; i<this.max; i++) {
+            var r = i / this.max * 4;
+            this.wave_data[0].push(r*1.5);   //波浪一
+            this.wave_data[1].push(r + 1);   //波浪二（+1代表偏移π）
+        }
+        this.d = this.svg_width/(this.wave_data[0].length-1);
+        this.svg_paths.push(d3.select('#svg_wave_1'));
+        this.svg_paths.push(d3.select('#svg_wave_2'));
+
+        this.renderWave();
     }
     checkTimeOut(){
         this.currentTime = new Date().getTime(); //update current time
