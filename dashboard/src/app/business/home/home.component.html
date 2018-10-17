@@ -1,27 +1,38 @@
 <div class="home-font-color-class ui-home-container" *ngIf="showAdminStatis">
     <div class="ui-home-backend-container">
-        <div>
+        <div #svgCon>
+            <svg width="240" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0,0,240,64" [ngStyle]="{'transform': 'scale('+ scaleX +', '+ scaleY +')'}">
+                <g>
+                    <title>Layer 1</title>
+                    <path #path d="m10.5,31.5c0,-14.91713 49.00276,-27 109.49999,-27c60.49723,0 109.49999,12.08287 109.49999,27c0,14.91713 -49.00276,27 -109.49999,27c-60.49723,0 -109.49999,-12.08287 -109.49999,-27z" stroke-opacity="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="null" fill-opacity="null" fill="none"/>
+                </g>
+            </svg>
             <div class="cloud-center" (click)="showRegister()">
                 <div class="ui-home-backend-add">+</div>
             </div>
-            <div class="cloud-aws" (click)="showBackendsDeatil(0)">
+            <div #cloud_aws class="cloud" (click)="showBackendsDeatil(0)" (mouseover)="backendOver($event)" (mouseout)="backendOut($event)">
                 <div class="ui-home-backend-count">{{allBackends.aws}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/aws.svg" />
                 </div>
             </div>
-            <div class="cloud-hw" (click)="showBackendsDeatil(1)">
+            <div #cloud_hw class="cloud" (click)="showBackendsDeatil(1)" (mouseover)="backendOver($event)" (mouseout)="backendOut($event)">
                 <div class="ui-home-backend-count">{{allBackends.huaweipri}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/private-cloud.svg" width="42" />
                 </div>
             </div>            
-            <div class="cloud-hw-p" (click)="showBackendsDeatil(2)">
+            <div #cloud_hw_p class="cloud" (click)="showBackendsDeatil(2)" (mouseover)="backendOver($event)" (mouseout)="backendOut($event)">
                 <div class="ui-home-backend-count">{{allBackends.huaweipub}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/huawei.svg" width="32" />
                 </div>
             </div>
+        </div>
+        <div class="bg" #circleCon>
+            <svg width="240" height="64" xmlns="http://www.w3.org/2000/svg" [ngStyle]="{'transform': 'scale('+ scaleX +', '+ scaleY +')'}">
+                <use xlink:href="assets/business/images/common/opensds.svg#ic_cloud_circle" />
+            </svg>
         </div>
     </div>
     <div style="display:flex;">
@@ -70,47 +81,7 @@
             </p-card>
         </div>
     </div>
-    <p-home-dialog header="Register Storage Backend" [(visible)]="showRgister" [width]="510" [height]="790" modal="modal" [style]="{'opacity':'0.95','right':'46px','top':'80px','background':'rgb(44,63,97)'}" >
-        <form [grid]="{label: 'ui-g-5', content:'ui-g-20'}" [formGroup]="backendForm">
-            <form-item label="Name" >
-                <input id="name" type="text" name="name" formControlName="name"  pInputText />
-            </form-item>
-            <form-item label="Type" >
-                <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" (onChange)="changeRegion();" [(ngModel)]="typeDropdown" formControlName="type" [options]="allTypes"  ></p-dropdown>
-            </form-item>
-            <form-item label="Region" >
-                <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" formControlName="region" [options]="selectedRegions"  ></p-dropdown>
-            </form-item>
-            <form-item label="Endpoint" >
-                <input id="endpoint" type="text" name="endpoint"  formControlName="endpoint"  pInputText />
-            </form-item>
-            <form-item label="Bucket" >
-                <input id="bucket" type="text" name="bucket" formControlName="bucket"  placeholder="Bucket name" pInputText />
-            </form-item>
-            <form-item label="Access Key" >
-                <input id="accessKey" type="text" name="accessKey" formControlName="ak"  pInputText />
-            </form-item>
-            <form-item label="Secret Key" >
-                <input id="secretKey" type="text" name="secretKey" formControlName="sk"  pInputText />
-            </form-item>
-        </form>
-        <div style="margin-top:100px;">
-            <button type="button" class="ui-button-secondary" pButton (click)="onSubmit()" label="{{I18N.keyID['ok']}}" ></button>
-        </div>
-    </p-home-dialog>
-    <p-home-dialog header="Storage Backends" [(visible)]="showBackends" [width]="710" [height]="790" modal="modal" [style]="{'opacity':'0.8','right':'46px','top':'80px','background':'rgb(44,63,97)'}" >
-        <p-dataTable id="home-backend-detail" [value]="typeDetail" [globalFilter]="searchByName" [rows]="10">
-            <p-column field="name" header="{{I18N.keyID['sds_block_volume_name']}}" ></p-column>
-            <p-column field="typeName" header="Type" ></p-column>
-            <p-column field="bucket" header="Bucket"></p-column>
-            <p-column header="{{I18N.keyID['sds_block_volume_operation']}}" [style]="{'width':'140px'}">
-                <ng-template pTemplate="body" let-backend="rowData" let-i="rowIndex">
-                    <a class="a-rep-disabled" style="margin-right:10px;" >Modify</a>
-                    <a (click)="deleteBackend(backend)">Delete</a>
-                </ng-template>
-            </p-column>
-        </p-dataTable>
-    </p-home-dialog>
+    
 </div>
 
 <div class="home-font-color-class" *ngIf="!showAdminStatis">
@@ -159,4 +130,45 @@
             <div class="ui-helper-clearfix"></div>
         </div>
 </div>
+<p-home-dialog header="Register Storage Backend" [(visible)]="showRgister" [width]="510" [height]="790" modal="modal" [style]="{'opacity':'0.95','right':'46px','top':'80px','background':'rgb(44,63,97)'}" >
+        <form [grid]="{label: 'ui-g-5', content:'ui-g-20'}" [formGroup]="backendForm">
+            <form-item label="Name" >
+                <input id="name" type="text" name="name" formControlName="name"  pInputText />
+            </form-item>
+            <form-item label="Type" >
+                <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" (onChange)="changeRegion();" [(ngModel)]="typeDropdown" formControlName="type" [options]="allTypes"  ></p-dropdown>
+            </form-item>
+            <form-item label="Region" >
+                <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" formControlName="region" [options]="selectedRegions"  ></p-dropdown>
+            </form-item>
+            <form-item label="Endpoint" >
+                <input id="endpoint" type="text" name="endpoint"  formControlName="endpoint"  pInputText />
+            </form-item>
+            <form-item label="Bucket" >
+                <input id="bucket" type="text" name="bucket" formControlName="bucket"  placeholder="Bucket name" pInputText />
+            </form-item>
+            <form-item label="Access Key" >
+                <input id="accessKey" type="text" name="accessKey" formControlName="ak"  pInputText />
+            </form-item>
+            <form-item label="Secret Key" >
+                <input id="secretKey" type="text" name="secretKey" formControlName="sk"  pInputText />
+            </form-item>
+        </form>
+        <div style="margin-top:100px;">
+            <button type="button" class="ui-button-secondary" pButton (click)="onSubmit()" label="{{I18N.keyID['ok']}}" ></button>
+        </div>
+</p-home-dialog>
+<p-home-dialog header="Storage Backends" [(visible)]="showBackends" [width]="710" [height]="790" modal="modal" [style]="{'opacity':'0.8','right':'46px','top':'80px','background':'rgb(44,63,97)'}" >
+    <p-dataTable id="home-backend-detail" [value]="typeDetail" [globalFilter]="searchByName" [rows]="10">
+        <p-column field="name" header="{{I18N.keyID['sds_block_volume_name']}}" ></p-column>
+        <p-column field="typeName" header="Type" ></p-column>
+        <p-column field="bucket" header="Bucket"></p-column>
+        <p-column header="{{I18N.keyID['sds_block_volume_operation']}}" [style]="{'width':'140px'}">
+            <ng-template pTemplate="body" let-backend="rowData" let-i="rowIndex">
+                <a class="a-rep-disabled" style="margin-right:10px;" >Modify</a>
+                <a (click)="deleteBackend(backend)">Delete</a>
+            </ng-template>
+        </p-column>
+    </p-dataTable>
+</p-home-dialog>
 <p-confirmDialog></p-confirmDialog>

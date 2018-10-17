@@ -47,6 +47,16 @@ export class HomeComponent implements OnInit {
     selectedType:any;
     typeDropdown:any;
     selectedRegions = [];
+
+    @ViewChild("path") path: ElementRef;
+    @ViewChild("cloud_aws") c_AWS: ElementRef;
+    @ViewChild("cloud_hw") c_HW: ElementRef;
+    @ViewChild("cloud_hw_p") c_HWP: ElementRef;
+    @ViewChild("svgCon") svgCon: ElementRef;
+    
+    scaleX = 1;
+    scaleY = 1;
+
     constructor(
         private http: Http,
         private paramStor: ParamStorService,
@@ -229,7 +239,40 @@ export class HomeComponent implements OnInit {
             label:'CN South-Guangzhou',
             value:'CN South-Guangzhou'
         }]];
+
+        let that = this;
+        document.body.onmousemove = function(e){
+            let initPos = 350;
+            let svgConW = that.svgCon.nativeElement.offsetWidth, svgConH = that.svgCon.nativeElement.offsetHeight;
+            let winW = document.documentElement.offsetWidth, winH = document.documentElement.offsetHeight;
+            let disX = 20, disY = 1;
+            let moveX = e.pageX * disX / (winW-320)*0.5, moveY = e.pageY * disY / winH;
+            that.scaleX = svgConW/240; // 240为svg原始宽度
+            that.scaleY = 5.5 - moveY; 
+
+            let clouds = [that.c_AWS.nativeElement, that.c_HW.nativeElement, that.c_HWP.nativeElement];
+            clouds.forEach((item, index) => {
+              let totalLength = that.path.nativeElement.getTotalLength();
+              let point = totalLength/clouds.length * (index+1) + moveX + initPos;
+                  if(point > totalLength) point = point - totalLength;
+                  if(point < 0) point = totalLength - point;
+              
+              let pos = that.path.nativeElement.getPointAtLength(point);
+              item.style.left = (pos.x*that.scaleX - item.offsetWidth*0.5) +"px";
+              item.style.top = (pos.y*that.scaleY + svgConH*(1 - that.scaleY)*0.5 - item.offsetHeight*0.6) +"px";
+              item.style.display = "block";
+            }) 
+        }
     }
+
+    backendOver(event){
+        event.target.style.transform = 'scale(1.2, 1.2)';
+    }
+
+    backendOut(event){
+        event.target.style.transform = 'scale(1, 1)';
+    }
+
     getType(){
         let url = 'v1beta/{project_id}/type?page=1&limit=3';
         this.http.get(url).subscribe((res)=>{
