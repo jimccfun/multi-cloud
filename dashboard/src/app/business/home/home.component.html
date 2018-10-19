@@ -10,19 +10,19 @@
             <div class="cloud-center" (click)="showRegister()">
                 <div class="ui-home-backend-add">+</div>
             </div>
-            <div #cloud_aws class="cloud" (click)="showBackendsDeatil(0)" (mouseover)="backendOver($event)" (mouseout)="backendOut($event)">
+            <div #cloud_aws class="cloud" (click)="showBackendsDeatil(0)">
                 <div class="ui-home-backend-count">{{allBackends.aws}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/aws.svg" />
                 </div>
             </div>
-            <div #cloud_hw class="cloud" (click)="showBackendsDeatil(1)" (mouseover)="backendOver($event)" (mouseout)="backendOut($event)">
+            <div #cloud_hw class="cloud" (click)="showBackendsDeatil(1)">
                 <div class="ui-home-backend-count">{{allBackends.huaweipri}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/private-cloud.svg" width="42" />
                 </div>
             </div>            
-            <div #cloud_hw_p class="cloud" (click)="showBackendsDeatil(2)" (mouseover)="backendOver($event)" (mouseout)="backendOut($event)">
+            <div #cloud_hw_p class="cloud" (click)="showBackendsDeatil(2)">
                 <div class="ui-home-backend-count">{{allBackends.huaweipub}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/huawei.svg" width="32" />
