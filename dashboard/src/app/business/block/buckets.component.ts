@@ -10,7 +10,7 @@ import { BucketService} from './buckets.service';
 import { debug } from 'util';
 import { MigrationService } from './../dataflow/migration.service';
 import { Http } from '@angular/http';
-
+declare let X2JS:any;
 @Component({
     selector: 'bucket-list',
     templateUrl: './buckets.html',
@@ -116,7 +116,10 @@ export class BucketsComponent implements OnInit{
                 created:"2018-02-25 07:30:12",
             }
         ];
-        this.backendsOption = [];
+        this.backendsOption.push({
+            label: "testaws",
+            value: "5bc583bf945c8100015d5eac"
+        });;
         this.lifeOperation =[{
             label:'Migration',
             value:'Migration'
@@ -194,14 +197,23 @@ export class BucketsComponent implements OnInit{
         this.allBuckets = [];
         this.bucketOption = [];
         this.BucketService.getBuckets().subscribe((res) => {
-            this.allBuckets = res.json();
+            let str = res.json();
+            let x2js = new X2JS();
+            let jsonObj = x2js.xml_str2json(str);
+            let buckets = (jsonObj ? jsonObj.ListAllMyBucketsResult.Buckets:[]);
+            if(Object.prototype.toString.call(buckets) === "[object Array]"){
+                this.allBuckets = buckets;
+            }else if(Object.prototype.toString.call(buckets) === "[object Object]"){
+                this.allBuckets = [buckets];
+            }
             this.allBuckets.forEach(item=>{
-                item.createdAt = (item.createdAt.substring(0,19)).replace("T"," ");
+                item.name =item.Name;
+                item.createdAt = (item.CreationDate.substring(0,19)).replace("T"," ");
                 this.bucketOption.push({
                     label:item.name,
                     value:item.name
                 });
-                this.backendMap.set(item.name,item.backend);
+                //this.backendMap.set(item.name,item.backend);
             });
         });
     }
@@ -278,7 +290,10 @@ export class BucketsComponent implements OnInit{
             backend_type:this.createBucketForm.value.backend_type,
             backend:this.createBucketForm.value.backend,
         };
-        this.BucketService.createBucket(param).subscribe(()=>{
+        let xmlStr = `<CreateBucketConfiguration xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
+                        <LocationConstraint>${this.createBucketForm.value.backend}</LocationConstraint>
+                    </CreateBucketConfiguration>`
+        this.BucketService.createBucket(this.createBucketForm.value.name,xmlStr).subscribe(()=>{
             this.createBucketDisplay = false;
             this.getBuckets();
         });
@@ -307,9 +322,12 @@ export class BucketsComponent implements OnInit{
             isWarning: warming,
             accept: ()=>{
                 try {
-                    let id = bucket.id;
-                    this.BucketService.deleteBucket(id).subscribe((res) => {
-                        this.ngOnInit();
+                    let name = bucket.name;
+                    this.BucketService.deleteBucket(name).subscribe((res) => {
+                        this.getBuckets();
+                    },
+                    error=>{
+                        this.getBuckets();
                     });
                 }
                 catch (e) {

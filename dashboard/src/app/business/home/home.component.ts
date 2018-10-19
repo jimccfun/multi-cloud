@@ -70,7 +70,7 @@ export class HomeComponent implements OnInit {
     ngOnInit() {
         if(this.paramStor.CURRENT_USER().split("|")[0] == "admin"){
             this.showAdminStatis = true;
-            this.getCountData();
+            // this.getCountData();
         }else{
             this.showAdminStatis = false;
             this.getTenantCountData();
@@ -440,7 +440,7 @@ export class HomeComponent implements OnInit {
     showBackendsDeatil(type){
         this.showBackends = true;
         this.selectedType = type;
-        let url = 'v1beta/{project_id}/backend/?type='+type;
+        let url = 'v1/{project_id}/backends/?type='+type;
         this.http.get(url).subscribe((res)=>{
             let types = res.json();
             types.forEach(element => {
@@ -501,18 +501,18 @@ export class HomeComponent implements OnInit {
     }
                             
     getCounts(){
-        let url1 = 'v1beta/{project_id}/block/volumes/count';
-        let url2 = 'v1beta/{project_id}/bucket/count';
-        let url3 = 'v1beta/{project_id}/migration/count';
-        this.http.get(url1).subscribe((res)=>{
-            this.counts.volumesCount = res.json().count;
-        });
-        this.http.get(url2).subscribe((res)=>{
-            this.counts.bucketsCount = res.json().count;
-        });
-        this.http.get(url3).subscribe((res)=>{
-            this.counts.migrationCount = res.json().count;
-        });
+        // let url1 = 'v1beta/{project_id}/block/volumes/count';
+        // let url2 = 'v1beta/{project_id}/bucket/count';
+        // let url3 = 'v1beta/{project_id}/migration/count';
+        // this.http.get(url1).subscribe((res)=>{
+        //     this.counts.volumesCount = res.json().count;
+        // });
+        // this.http.get(url2).subscribe((res)=>{
+        //     this.counts.bucketsCount = res.json().count;
+        // });
+        // this.http.get(url3).subscribe((res)=>{
+        //     this.counts.migrationCount = res.json().count;
+        // });
     }
     // // 创建backend
     onSubmit(){

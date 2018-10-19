@@ -9,11 +9,11 @@ export class BucketService {
     private paramStor: ParamStorService
   ) { }
 
-  url = 'v1beta/{project_id}/bucket';
+  url = 'v1/s3';
 
   //Create bucket
-  createBucket(param) {
-    return this.http.post(this.url, param);
+  createBucket(name,param?) {
+    return this.http.put(this.url+"/"+name,param);
   }
 
   //Upload file
@@ -33,8 +33,8 @@ export class BucketService {
   }
 
   //Delete Bucket
-  deleteBucket(id): Observable<any> {
-    let deleteUrl = this.url + '/' + id
+  deleteBucket(name): Observable<any> {
+    let deleteUrl = this.url + '/' + name
     return this.http.delete(deleteUrl);
   }
 

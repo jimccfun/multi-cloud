@@ -61,6 +61,7 @@ export class HttpService extends Http {
             !options && (options = {})
             !options.headers && (options['headers'] = new Headers());
             options.headers.set('X-Auth-Token', localStorage['auth-token']);
+            options.headers.set("Content-Type", "application/json;charset=UTF-8");
             
         }
 
