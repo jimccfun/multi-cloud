@@ -301,9 +301,11 @@ export class CreateProfileComponent implements OnInit {
                 Consistency: this.I18N.keyID['sds_profile_rep_consis']
             },
             snapshotLabel: {
+                automatic: this.I18N.keyID['sds_profile_snap_auto'],
                 Schedule: this.I18N.keyID['sds_profile_snap_sche'],
                 executionTime:this.I18N.keyID['sds_profile_snap_exetime'],
-                Retention: this.I18N.keyID['sds_profile_snap_reten']
+                Retention: this.I18N.keyID['sds_profile_snap_reten'],
+                destination: this.I18N.keyID['sds_profile_snap_dest']
             }
         };
 
@@ -330,11 +332,13 @@ export class CreateProfileComponent implements OnInit {
             "repCons": new FormControl([])
         });
         this.snapPolicy = this.fb.group({
+            "autoSnapshot": new FormControl(true),
             "Schedule": new FormControl(this.snapSchedule[0].value, Validators.required),
             "datetime": new FormControl("00:00", Validators.required),
             "snapNum": new FormControl(1, Validators.required),
             "duration": new FormControl(0, Validators.required),
-            "retentionOptions": new FormControl(this.snapshotRetentionOptions[0].value)
+            "retentionOptions": new FormControl(this.snapshotRetentionOptions[0].value),
+            "snapshotDestination": new FormControl('')
         });
         this.paramData= {
             extras:{protocol:this.profileform.value.protocol},

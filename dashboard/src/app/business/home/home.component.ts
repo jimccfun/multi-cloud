@@ -245,10 +245,10 @@ export class HomeComponent implements OnInit {
             let initPos = 350;
             let svgConW = that.svgCon.nativeElement.offsetWidth, svgConH = that.svgCon.nativeElement.offsetHeight;
             let winW = document.documentElement.offsetWidth, winH = document.documentElement.offsetHeight;
-            let disX = 20, disY = 1;
+            let disX = 10, disY = 1;
             let moveX = e.pageX * disX / (winW-320)*0.5, moveY = e.pageY * disY / winH;
             that.scaleX = svgConW/240; // 240为svg原始宽度
-            that.scaleY = 5.5 - moveY; 
+            that.scaleY = 5; //5.5 - moveY; 
 
             let clouds = [that.c_AWS.nativeElement, that.c_HW.nativeElement, that.c_HWP.nativeElement];
             clouds.forEach((item, index) => {
@@ -263,14 +263,6 @@ export class HomeComponent implements OnInit {
               item.style.display = "block";
             }) 
         }
-    }
-
-    backendOver(event){
-        event.target.style.transform = 'scale(1.2, 1.2)';
-    }
-
-    backendOut(event){
-        event.target.style.transform = 'scale(1, 1)';
     }
 
     getType(){
