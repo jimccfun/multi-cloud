@@ -34,7 +34,6 @@ export class BucketDetailComponent implements OnInit {
   selectType:any;
   selectBackend:any;
   bucket;
-  // private uploader: FileUploader;
   constructor(
     private ActivatedRoute: ActivatedRoute,
     public I18N:I18NService,
@@ -45,27 +44,21 @@ export class BucketDetailComponent implements OnInit {
 
   ngOnInit() {
     this.ActivatedRoute.params.subscribe((params) => {
-      // this.uploader = new FileUploader({
-      //   url: 'v1beta/file/upload' + "?bucket_id=" + params.bucketId,
-      //   method: 'POST',
-      //   itemAlias: "uploadedfile",
-      //   autoUpload: false
-      // })
-
       this.bucketId = params.bucketId;
-      this.BucketService.getBucketById(this.bucketId).subscribe((res) => {
-        this.bucket = res.json();
-        this.buketName = this.bucket.name;
-        this.items.push({
-          label: this.buketName,
-          url: ["bucketDetail", this.buketName],
-        });
+      this.items.push({
+        label: this.bucketId,
+        url: ["bucketDetail", this.bucketId],
       });
+      this.getAlldir();
       this.allTypes = [];
-      this.getFile();
-      this.getTypes();
+      // this.getTypes();
     }
     );
+  }
+  getAlldir(){
+    this.BucketService.getBucketById(this.bucketId).subscribe((res) => {
+      this.allDir = res.json().ListObjects ? res.json().ListObjects : [];
+    });
   }
   getTypes() {
     this.allTypes = [];
@@ -89,18 +82,6 @@ export class BucketDetailComponent implements OnInit {
         });
     });
   }
-  getFile() {
-    this.selectedDir = [];
-    this.BucketService.getFilesByBucketId(this.bucketId).subscribe((res) => {
-      this.allDir = res.json();
-      this.allDir.forEach(element => {
-        element.last_modified = (element.last_modified.substring(0,19)).replace("T"," ");
-        element.size = Utils.getDisplayCapacity(element.size, 2, "KB");
-      });
-    });
-
-  }
-
   showDetail(){
     if(this.selectedSpecify.length !== 0){
       this.showBackend = true;
@@ -108,28 +89,15 @@ export class BucketDetailComponent implements OnInit {
       this.showBackend = false;
     }
   }
-
-    /**
-   * 上传文件内容变化时执行的方法
-   * @param event
-   */
   selectedFileOnChanged(event: any) {
-    // 这里是文件选择完成后的操作处理
-    // alert('上传文件改变啦');
     if(event.target.files[0]){
       let file = event.target.files[0];
       this.selectFile = file;
     }
   }
-
-  /**
-   * 上传文件方法
-   */
   uploadFile() {
     let form = new FormData();
     form.append("file", this.selectFile);
-    
-    
     this.BucketService.uploadFile(form).subscribe((res) => {
       let data = res.json();
       if(data.isExsit){
@@ -147,7 +115,6 @@ export class BucketDetailComponent implements OnInit {
         }
         this.BucketService.saveToDB(params).subscribe((res) => {
           this.uploadDisplay = false;
-          this.getFile();
         })
       }
     });
@@ -182,7 +149,7 @@ export class BucketDetailComponent implements OnInit {
     this.confirmDialog([msg,header,acceptLabel,warming,"deleteMilti"],this.selectedDir);
   }
   deleteFile(file){
-    let msg = "<div>Are you sure you want to delete the File ?</div><h3>[ "+ file.name +" ]</h3>";
+    let msg = "<div>Are you sure you want to delete the File ?</div><h3>[ "+ file.objectKey +" ]</h3>";
     let header ="Delete";
     let acceptLabel = "Delete";
     let warming = true;
@@ -199,15 +166,16 @@ export class BucketDetailComponent implements OnInit {
               try {
                 switch(func){
                   case "delete":
-                    let id = file._id;
-                    this.BucketService.deleteFile(id).subscribe((res) => {
-                        this.getFile();
+                    let objectKey = file.objectKey;
+                    this.BucketService.deleteFile(`/${this.bucketId}/${objectKey}`).subscribe((res) => {
+                        this.getAlldir();
                     });
                     break;
                   case "deleteMilti":
                    file.forEach(element => {
-                      this.BucketService.deleteFile(element._id).subscribe((res) => {
-                        this.getFile();
+                      let objectKey = element.objectKey;
+                      this.BucketService.deleteFile(`/${this.bucketId}/${objectKey}`).subscribe((res) => {
+                        this.getAlldir();
                       });
                    });
                     break;

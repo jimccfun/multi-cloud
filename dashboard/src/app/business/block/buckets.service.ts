@@ -58,7 +58,7 @@ export class BucketService {
   }
 
   deleteFile(fileId) : Observable<any> {
-    return this.http.delete('v1beta/{project_id}/file/' + fileId);
+    return this.http.delete(this.url + fileId);
   }
 
   getTypes() : Observable<any> {

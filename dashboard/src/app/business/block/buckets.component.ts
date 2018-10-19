@@ -284,7 +284,6 @@ export class BucketsComponent implements OnInit{
     }
 
     creatBucket(){
-        console.log(this.createBucketForm.value);
         let param = {
             name:this.createBucketForm.value.name,
             backend_type:this.createBucketForm.value.backend_type,
