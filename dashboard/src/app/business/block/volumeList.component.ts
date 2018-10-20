@@ -89,7 +89,7 @@ export class VolumeListComponent implements OnInit {
     ) {
         this.snapshotFormGroup = this.fb.group({
             "name": ["", Validators.required],
-            "profile": ["", Validators.required],
+            "profile": [""],
             "description": ["", Validators.maxLength(200)]
         });
         this.modifyFormGroup = this.fb.group({
@@ -228,6 +228,12 @@ export class VolumeListComponent implements OnInit {
                     label: profile.name,
                     value: profile.id
                 });
+                if(profile.snapshotProperties.topology.bucket){
+                    this.snapProfileOptions.push({
+                        label: profile.name,
+                        value: profile.id
+                    });
+                }
             });
 
             this.getVolumes();
@@ -261,6 +267,9 @@ export class VolumeListComponent implements OnInit {
             name: this.snapshotFormGroup.value.name,
             volumeId: this.selectedVolume.id,
             description: this.snapshotFormGroup.value.description
+        }
+        if(this.snapshotFormGroup.value.profile){
+            param['profileId'] = this.snapshotFormGroup.value.profile
         }
         this.SnapshotService.createSnapshot(param).subscribe((res) => {
             this.createSnapshotDisplay = false;

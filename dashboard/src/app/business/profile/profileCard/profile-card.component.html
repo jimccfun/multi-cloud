@@ -15,7 +15,10 @@
             <span class="label-class">Provisioning Type:</span>
             <span>{{data.extras && data.extras[':provisionPolicy'].dataStorageLoS.provisioningPolicy}}</span>
         </div>
-
+        <div class="padding-class">
+            <span class="label-class">snapshotProperties:</span>
+            <span>{{data.snapshotProperties && data.snapshotProperties.topology.bucket}}</span>
+        </div>
         <div class="padding-class item-flex" *ngIf="data.extras && policys">
             <div (mouseenter)="showSuspensionFrame($event)" (mouseleave)="showSuspensionFrame($event)" *ngFor="let policy of policys; index as i" class="position-relative mouse-cursor">
                 <div style="width:114px" class="fa fa-check icon-color-class margin-right-class">

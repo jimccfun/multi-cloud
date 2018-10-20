@@ -431,13 +431,20 @@ export class CreateProfileComponent implements OnInit {
             let reten = this.snapPolicy.value.retentionOptions === "Quantity" ? {
                     "number": this.snapPolicy.value.snapNum,
                 }:{"duration": this.snapPolicy.value.duration}
-            this.param.extras[":snapshotPolicy"]= {
-                "schedule": {
-                    "datetime": "1970-01-01T"+this.snapPolicy.value.datetime+":00",
-                    "occurrence": this.snapPolicy.value.Schedule //Monthly, Weekly, Daily, Hourly
-                },
-                "retention": reten
-            }
+            if(this.snapPolicy.value.autoSnapshot){
+                this.param.extras[":snapshotPolicy"]= {
+                    "retention": reten
+                }
+            }else{
+                this.param.extras[":snapshotPolicy"]= {
+                    "schedule": {
+                        "datetime": "1970-01-01T"+this.snapPolicy.value.datetime+":00",
+                        "occurrence": this.snapPolicy.value.Schedule //Monthly, Weekly, Daily, Hourly
+                    },
+                    "retention": reten
+                }
+            };
+            this.param["snapshotProperties"] = {"topology":{"bucket":this.snapPolicy.value.snapshotDestination}};
         }
         if (this.customizationItems.length > 0) {
             let arrLength = this.customizationItems.length;

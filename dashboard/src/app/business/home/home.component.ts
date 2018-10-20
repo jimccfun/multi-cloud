@@ -284,15 +284,15 @@ export class HomeComponent implements OnInit {
     }
     listStorage(){
        let  backendUrl = "v1beta/{project_id}/backend";
-       this.http.get(backendUrl + "/count?type=0" ).subscribe((res)=>{
-           this.allBackends.aws = res.json().count;
-       });
-       this.http.get(backendUrl + "/count?type=1").subscribe((res)=>{
-            this.allBackends.huaweipri = res.json().count;
-        });
-        this.http.get(backendUrl + "/count?type=2").subscribe((res)=>{
-            this.allBackends.huaweipub = res.json().count;
-        });
+    //    this.http.get(backendUrl + "/count?type=0" ).subscribe((res)=>{
+    //        this.allBackends.aws = res.json().count;
+    //    });
+    //    this.http.get(backendUrl + "/count?type=1").subscribe((res)=>{
+    //         this.allBackends.huaweipri = res.json().count;
+    //     });
+    //     this.http.get(backendUrl + "/count?type=2").subscribe((res)=>{
+    //         this.allBackends.huaweipub = res.json().count;
+    //     });
     }
     getProfiles() {
         this.profileService.getProfiles().subscribe((res) => {
