@@ -159,7 +159,7 @@
         </div>
 </p-home-dialog>
 <p-home-dialog header="Storage Backends" [(visible)]="showBackends" [width]="710" [height]="790" modal="modal" [style]="{'opacity':'0.8','right':'46px','top':'80px','background':'rgb(44,63,97)'}" >
-    <p-dataTable id="home-backend-detail" [value]="typeDetail" [globalFilter]="searchByName" [rows]="10">
+    <p-dataTable id="home-backend-detail" [value]="typeDetail" [rows]="10">
         <p-column field="name" header="{{I18N.keyID['sds_block_volume_name']}}" ></p-column>
         <p-column field="typeName" header="Type" ></p-column>
         <p-column field="bucket" header="Bucket"></p-column>

@@ -61,7 +61,7 @@ export class HomeComponent implements OnInit {
         private http: Http,
         private paramStor: ParamStorService,
         private profileService: ProfileService,
-        private I18N: I18NService,
+        public I18N: I18NService,
         private fb:FormBuilder,
         private ConfirmationService:ConfirmationService,
         private router: Router,
