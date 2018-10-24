@@ -197,7 +197,7 @@ export class BucketsComponent implements OnInit{
         this.allBuckets = [];
         this.bucketOption = [];
         this.BucketService.getBuckets().subscribe((res) => {
-            let str = res.json();
+            let str = res._body;
             let x2js = new X2JS();
             let jsonObj = x2js.xml_str2json(str);
             let buckets = (jsonObj ? jsonObj.ListAllMyBucketsResult.Buckets:[]);
