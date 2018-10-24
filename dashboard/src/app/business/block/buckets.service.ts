@@ -17,8 +17,8 @@ export class BucketService {
   }
 
   //Upload file
-  uploadFile(bucketName,param) {
-    return this.http.put(this.url+`/${bucketName}`, param);
+  uploadFile(bucketName,param,option?) {
+    return this.http.put(this.url+`/${bucketName}`, param,option);
   }
 
   //Save to db

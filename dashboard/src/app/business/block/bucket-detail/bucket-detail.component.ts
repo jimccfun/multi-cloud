@@ -5,7 +5,8 @@ import { BucketService} from '../buckets.service';
 // import { FileUploader } from 'ng2-file-upload';
 import { MenuItem ,ConfirmationService} from '../../../components/common/api';
 import { HttpClient } from '@angular/common/http';
-
+import {XHRBackend, RequestOptions, Request, RequestOptionsArgs, Response, Headers, BaseRequestOptions } from '@angular/http';
+declare let X2JS:any;
 @Component({
   selector: 'bucket-detail',
   templateUrl: './bucket-detail.component.html',
@@ -57,7 +58,15 @@ export class BucketDetailComponent implements OnInit {
   }
   getAlldir(){
     this.BucketService.getBucketById(this.bucketId).subscribe((res) => {
-      this.allDir = res.json().ListObjects ? res.json().ListObjects : [];
+      let str = res._body;
+      let x2js = new X2JS();
+      let jsonObj = x2js.xml_str2json(str);
+      let alldir = jsonObj.ListObjectResponse.ListObjects ? jsonObj.ListObjectResponse.ListObjects :[] ;
+      if(Object.prototype.toString.call(alldir) === "[object Array]"){
+          this.allDir = alldir;
+      }else if(Object.prototype.toString.call(alldir) === "[object Object]"){
+          this.allDir = [alldir];
+      }
     });
   }
   getTypes() {
@@ -97,28 +106,14 @@ export class BucketDetailComponent implements OnInit {
   }
   uploadFile() {
     let form = new FormData();
-    form.append("file", this.selectFile);
-    this.BucketService.uploadFile(form).subscribe((res) => {
-      let data = res.json();
-      if(data.isExsit){
-        alert("Exsit");
-        this.uploadDisplay = false;
-      }else{
-        let params = {};
-        params['name'] = data.originalFilename;
-        params['size'] = data.size;
-        params['bucketID'] = this.bucketId;
-        if (!this.showBackend) {
-          params['backendName'] = this.bucket.backend;
-        } else {
-          params['backendName'] = this.selectBackend;
-        }
-        this.BucketService.saveToDB(params).subscribe((res) => {
-          this.uploadDisplay = false;
-        })
-      }
+    form.append("file", this.selectFile,this.selectFile.name);
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/xml');
+    let options = new RequestOptions({ headers: headers });
+    this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name,form,options).subscribe((res) => {
+      this.uploadDisplay = false;
+      this.getAlldir();
     });
-    
   }
 
   downloadFile(file) {
@@ -149,7 +144,7 @@ export class BucketDetailComponent implements OnInit {
     this.confirmDialog([msg,header,acceptLabel,warming,"deleteMilti"],this.selectedDir);
   }
   deleteFile(file){
-    let msg = "<div>Are you sure you want to delete the File ?</div><h3>[ "+ file.objectKey +" ]</h3>";
+    let msg = "<div>Are you sure you want to delete the File ?</div><h3>[ "+ file.ObjectKey +" ]</h3>";
     let header ="Delete";
     let acceptLabel = "Delete";
     let warming = true;
@@ -166,14 +161,14 @@ export class BucketDetailComponent implements OnInit {
               try {
                 switch(func){
                   case "delete":
-                    let objectKey = file.objectKey;
+                    let objectKey = file.ObjectKey;
                     this.BucketService.deleteFile(`/${this.bucketId}/${objectKey}`).subscribe((res) => {
                         this.getAlldir();
                     });
                     break;
                   case "deleteMilti":
                    file.forEach(element => {
-                      let objectKey = element.objectKey;
+                      let objectKey = element.ObjectKey;
                       this.BucketService.deleteFile(`/${this.bucketId}/${objectKey}`).subscribe((res) => {
                         this.getAlldir();
                       });

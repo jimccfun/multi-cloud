@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 import { ParamStorService } from 'app/shared/api';
 import { ProfileService } from 'app/business/profile/profile.service';
 import { Observable } from "rxjs/Rx";
-import { I18NService } from 'app/shared/api';
+import { I18NService ,HttpService} from 'app/shared/api';
 import { ReactiveFormsModule, FormsModule,FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { MenuItem ,ConfirmationService,ConfirmDialogModule} from '../../components/common/api';
 import { Router } from '@angular/router';
@@ -58,7 +58,7 @@ export class HomeComponent implements OnInit {
     scaleY = 1;
 
     constructor(
-        private http: Http,
+        private http: HttpService,
         private paramStor: ParamStorService,
         private profileService: ProfileService,
         public I18N: I18NService,
@@ -266,21 +266,21 @@ export class HomeComponent implements OnInit {
     }
 
     getType(){
-        let url = 'v1beta/{project_id}/type?page=1&limit=3';
-        this.http.get(url).subscribe((res)=>{
-            let all = res.json();
-            console.log(all)
-            all.forEach(element => {
-                this.allTypes.push({
-                    label:element.name,
-                    value:element.id
-                });
-                this.typeJSON[element.id] = element.name;
-            });
-        });
+        // let url = 'v1beta/{project_id}/type?page=1&limit=3';
+        // this.http.get(url).subscribe((res)=>{
+        //     let all = res.json();
+        //     console.log(all)
+        //     all.forEach(element => {
+        //         this.allTypes.push({
+        //             label:element.name,
+        //             value:element.id
+        //         });
+        //         this.typeJSON[element.id] = element.name;
+        //     });
+        // });
     }
     changeRegion(){
-        this.selectedRegions = this.allRegions[this.typeDropdown];
+        // this.selectedRegions = this.allRegions[this.typeDropdown];
     }
     listStorage(){
        let  backendUrl = "v1beta/{project_id}/backend";
@@ -510,14 +510,14 @@ export class HomeComponent implements OnInit {
     onSubmit(){
         let param = {
             "name": this.backendForm.value.name,
-            "type": this.backendForm.value.type,
+            "type": this.backendForm.value.type ? this.backendForm.value.type : "aws", //tag
             "region": this.backendForm.value.region,
             "endpoint": this.backendForm.value.endpoint,
-            "bucket": this.backendForm.value.bucket,
-            "secretKey": this.backendForm.value.ak,
-            "accessKey": this.backendForm.value.sk
+            "bucketName": this.backendForm.value.bucket,
+            "security": this.backendForm.value.sk,
+            "access": this.backendForm.value.ak
         };
-        this.http.post("v1beta/{project_id}/backend", param).subscribe((res) => {
+        this.http.post("v1/{tenantId}/backends", param).subscribe((res) => {
             console.log(res);
             this.showRgister = false;
             this.listStorage();

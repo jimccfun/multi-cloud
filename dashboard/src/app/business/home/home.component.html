@@ -139,7 +139,7 @@
                 <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" (onChange)="changeRegion();" [(ngModel)]="typeDropdown" formControlName="type" [options]="allTypes"  ></p-dropdown>
             </form-item>
             <form-item label="Region" >
-                <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" formControlName="region" [options]="selectedRegions"  ></p-dropdown>
+                <input id="region" type="text" name="region"  formControlName="region"  pInputText />
             </form-item>
             <form-item label="Endpoint" >
                 <input id="endpoint" type="text" name="endpoint"  formControlName="endpoint"  pInputText />
