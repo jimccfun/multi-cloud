@@ -44,7 +44,7 @@ export class MigrationListComponent implements OnInit {
     engineOption = [];
     rule = "";
     excutingTime;
-    migrationId: string;
+    job: any;
     type2svg = {
         "aws":'aws.svg',
         "obs":"huawei.svg",
@@ -113,7 +113,7 @@ export class MigrationListComponent implements OnInit {
         this.destBuckets = [];
         this.engineOption = [];
         this.bucketOption.forEach((value,index)=>{
-           if(Consts.BUCKET_BACKND.get(value.label) !== Consts.BUCKET_BACKND.get(this.createMigrationForm.value.srcBucket)){ // tag wait bucket backend
+           if(Consts.BUCKET_BACKND.get(value.label) !== Consts.BUCKET_BACKND.get(this.createMigrationForm.value.srcBucket)){ 
                 this.destBuckets.push({
                     label:value.label,
                     value:value.value
@@ -122,17 +122,30 @@ export class MigrationListComponent implements OnInit {
         });
         
     }
+
     getMigrations() {
         this.allMigrations = [];
         this.MigrationService.getMigrations().subscribe((res) => {
             this.changeNumber.emit(true);
-            this.allMigrations = res.json().plans ? res.json().plans :[];
-            this.allMigrations.forEach((item,index)=>{
-                item.srctype = this.type2svg[Consts.BUCKET_TYPE.get(item.sourceConn.bucketName)];
-                item.desttype = this.type2svg[Consts.BUCKET_TYPE.get(item.destConn.bucketName)];
-                item.srcBucket = item.sourceConn.bucketName;
-                item.destBucket = item.destConn.bucketName;
+            let AllMigrations = res.json().plans ? res.json().plans :[];
+            this.http.get('v1/{project_id}/jobs').subscribe((res)=>{
+                let jobs = res.json().jobs ? res.json().jobs : [];
+                let jobsObj = {};
+                jobs.forEach(element => {
+                    jobsObj[element.planId] = element;
+                });
+                AllMigrations.forEach((item,index)=>{
+                    item.srctype = this.type2svg[Consts.BUCKET_TYPE.get(item.sourceConn.bucketName)];
+                    item.desttype = this.type2svg[Consts.BUCKET_TYPE.get(item.destConn.bucketName)];
+                    item.srcBucket = item.sourceConn.bucketName;
+                    item.destBucket = item.destConn.bucketName;
+                    item.job = jobsObj[item.id];
+                    item.status = jobsObj[item.id] ? jobsObj[item.id].status : 'waiting';
+                });
+                this.allMigrations = AllMigrations;
             });
+
+            
         });
     }
 
@@ -191,7 +204,7 @@ export class MigrationListComponent implements OnInit {
     }
 
     onRowExpand(evt) {
-        this.migrationId = evt.data.id;
+        this.job = evt.data.job;
     }
 
     deleteMigrate(migrate){

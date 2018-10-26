@@ -11,26 +11,21 @@ import { MigrationService } from '../migration.service';
   ]
 })
 export class MigrationDetailComponent implements OnInit {
-  @Input() migrationId;
+  @Input() job;
 
   migrationInstance = {
-    "name": "migration_04",
-    "srcBucket": "bucket02",
-    "destBucket": "bucket01",
-    "excutingTime": 1538014530000,
-    "rule": "",
-    "configDataAnalysis": false,
-    "analysisCluster": "",
-    "ak": "",
-    "sk": "",
+    "name": "--",
+    "srcBucket": "--",
+    "destBucket": "--",
+    "rule": "--",
+    "excutingTime":'--',
+    "analysisCluster": "--",
     "deleteSrcObject": true,
-    "id": "urV3BwUkHVaLdvUf",
-    "status": "migrating",
-    "endTime": "",
-    "_id": "urV3BwUkHVaLdvUf",
+    "id": "--",
+    "status": "--",
+    "endTime": "--",
     "srcBackend": "",
     "destBackend": "",
-    "ana_status":"",
     "objectnum":0,
     "totalsize":"0 MB"
   }
@@ -42,22 +37,8 @@ export class MigrationDetailComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.getMigrationById();
+    if(this.job){
+      // tag add content
+    }
   }
-
-  getMigrationById() {
-    this.MigrationService.getMigrationById(this.migrationId).subscribe((res) => {
-      this.migrationInstance = res.json();
-      // 获取 bucket 所属的 backend
-      this.MigrationService.getBucketByName(this.migrationInstance.srcBucket).subscribe((res) => {
-        this.migrationInstance.srcBackend = res.json()[0].backend;
-      }
-      )
-      this.MigrationService.getBucketByName(this.migrationInstance.destBucket).subscribe((res) => {
-        this.migrationInstance.destBackend = res.json()[0].backend;
-      }
-      )
-    });
-  }
-
 }

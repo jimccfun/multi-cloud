@@ -529,7 +529,7 @@ export class HomeComponent implements OnInit {
     onSubmit(){
         let param = {
             "name": this.backendForm.value.name,
-            "type": this.backendForm.value.type ? this.backendForm.value.type : "aws", //tag
+            "type": this.backendForm.value.type,
             "region": this.backendForm.value.region,
             "endpoint": this.backendForm.value.endpoint,
             "bucketName": this.backendForm.value.bucket,

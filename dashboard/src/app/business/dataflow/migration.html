@@ -34,7 +34,7 @@
         </ng-template>
     </p-column>
     <ng-template pTemplate="rowexpansion">
-        <migration-detail [migrationId]="migrationId"></migration-detail>
+        <migration-detail [job]="job"></migration-detail>
     </ng-template>
 </p-dataTable>
 <p-dialog styleClass="create-migrate-dialog" header="Migrate" [(visible)]="createMigrateShow" [width]="650" modal="modal">
