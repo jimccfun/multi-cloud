@@ -69,7 +69,7 @@ export class BucketDetailComponent implements OnInit {
       });
       this.getAlldir();
       this.allTypes = [];
-      // this.getTypes();
+      this.getTypes();
     }
     );
   }
@@ -89,10 +89,10 @@ export class BucketDetailComponent implements OnInit {
   getTypes() {
     this.allTypes = [];
     this.BucketService.getTypes().subscribe((res) => {
-        res.json().forEach(element => {
+        res.json().types.forEach(element => {
             this.allTypes.push({
                 label: element.name,
-                value: element.id
+                value: element.name
             })
         });
     });
@@ -100,7 +100,8 @@ export class BucketDetailComponent implements OnInit {
   getBackendsByTypeId() {
     this.backendsOption = [];
     this.BucketService.getBackendsByTypeId(this.selectType).subscribe((res) => {
-        res.json().forEach(element => {
+        let backends = res.json().backends ? res.json().backends :[];
+        backends.forEach(element => {
             this.backendsOption.push({
                 label: element.name,
                 value: element.name
@@ -126,6 +127,9 @@ export class BucketDetailComponent implements OnInit {
     form.append("file", this.selectFile,this.selectFile.name);
     let headers = new Headers();
     headers.append('Content-Type', 'application/xml');
+    if(this.selectBackend){
+      headers.append('x-amz-storage-class',this.selectBackend);
+    }
     let options = new RequestOptions({ headers: headers });
     this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name,form,options).subscribe((res) => {
       this.uploadDisplay = false;

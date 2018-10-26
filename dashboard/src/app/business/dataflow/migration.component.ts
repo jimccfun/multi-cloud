@@ -147,8 +147,6 @@ export class MigrationListComponent implements OnInit {
             "name": this.createMigrationForm.value.name,
             "description": "for test",
             "type": "migration",
-            // "policyId":"5bacc5be1d41c831c91e32cd",
-            // "policyEnabled": true,
             "sourceConn": {
                 "storType": "opensds-obj",
                 "bucketName": this.createMigrationForm.value.srcBucket
@@ -158,14 +156,38 @@ export class MigrationListComponent implements OnInit {
                 "bucketName": this.createMigrationForm.value.destBucket
             },
             "filter": {},
-            "overWrite": true,
             "remainSource": !this.createMigrationForm.value.deleteSrcObject
         }
-        this.MigrationService.createMigration(param).subscribe((res) => {
-            this.createMigrateShow = false;
-            this.getMigrations();
-        });
-
+        if(this.createMigrationForm.value.excute){
+            this.MigrationService.createMigration(param).subscribe((res) => {
+                this.createMigrateShow = false;
+                let planId = res.json().plan.id;
+                this.http.post(`v1/{project_id}/plans/${planId}/run`,{}).subscribe((res)=>{});
+                this.getMigrations();
+            });
+        }else{
+            let date = new Date(this.createMigrationForm.value.excuteTime);
+            let tigger = `00 ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} ${date.getDay()}`
+            console.log(tigger);
+            let policy={
+                "name":"cron test",
+                "tenant":"all",
+                "description":"cron test function",
+                "schedule": {
+                    "type":"cron",
+                    "tiggerProperties":"22 22 22 22 11 5"
+                }
+            };
+            // console.log(this.createMigrationForm.value.excuteTime);
+            this.http.post('v1/{project_id}/policies',policy).subscribe((res)=>{
+                param['policyId'] = res.json().policy.id;
+                param['policyEnabled'] = true;
+                this.MigrationService.createMigration(param).subscribe((res) => {
+                    this.createMigrateShow = false;
+                    this.getMigrations();
+                });
+            })
+        }        
     }
 
     onRowExpand(evt) {

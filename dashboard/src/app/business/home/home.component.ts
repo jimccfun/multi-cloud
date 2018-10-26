@@ -276,6 +276,7 @@ export class HomeComponent implements OnInit {
             }else if(Object.prototype.toString.call(buckets) === "[object Object]"){
                 allBuckets = [buckets];
             }
+            this.counts.bucketsCount = allBuckets.length;
             Consts.BUCKET_BACKND.clear();
             Consts.BUCKET_TYPE.clear();
             this.http.get('v1/{project_id}/backends').subscribe((res)=>{
@@ -515,18 +516,14 @@ export class HomeComponent implements OnInit {
     }
                             
     getCounts(){
-        // let url1 = 'v1beta/{project_id}/block/volumes/count';
-        // let url2 = 'v1beta/{project_id}/bucket/count';
-        // let url3 = 'v1beta/{project_id}/migration/count';
-        // this.http.get(url1).subscribe((res)=>{
-        //     this.counts.volumesCount = res.json().count;
-        // });
-        // this.http.get(url2).subscribe((res)=>{
-        //     this.counts.bucketsCount = res.json().count;
-        // });
-        // this.http.get(url3).subscribe((res)=>{
-        //     this.counts.migrationCount = res.json().count;
-        // });
+        let url1 = 'v1beta/{project_id}/block/volumes';
+        let url3 = 'v1/{project_id}/plans';
+        this.http.get(url1).subscribe((res)=>{
+            this.counts.volumesCount = res.json().length;
+        });
+        this.http.get(url3).subscribe((res)=>{
+            this.counts.migrationCount = res.json().plans ? res.json().plans.length : 0;
+        });
     }
     // // 创建backend
     onSubmit(){

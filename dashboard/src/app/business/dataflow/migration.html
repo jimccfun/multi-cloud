@@ -12,7 +12,7 @@
 </div>
 <p-dataTable [value]="allMigrations" [globalFilter]="searchByName" [(selection)]="selectedMigrations"  [showHeaderCheckbox]="true" expandableRows="true" rowExpandMode="single" [rows]="10" [paginator]="true" [pageLinks]="3" (onRowExpand)="onRowExpand($event)" [rowsPerPageOptions]="[10,20,50,100]">
     <p-column expander="true" styleClass="table-col-expander"></p-column>
-    <p-column header="Migration" [style]="{'width': '160px'}">
+    <p-column header="Migration" [style]="{'width': '170px'}">
         <ng-template pTemplate="body" let-mig="rowData">
             <div style="display:inline-block;">
                 <img style="height:28px;display:inline-block;margin-right:10px;" src="assets/business/images/common/{{mig.srctype}}" >
