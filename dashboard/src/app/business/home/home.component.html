@@ -10,20 +10,20 @@
             <div class="cloud-center" (click)="showRegister()">
                 <div class="ui-home-backend-add">+</div>
             </div>
-            <div #cloud_aws class="cloud" (click)="showBackendsDeatil(0)">
-                <div class="ui-home-backend-count">{{allBackends.aws}}</div>
+            <div #cloud_aws class="cloud" (click)="showBackendsDeatil('aws')">
+                <div class="ui-home-backend-count">{{allBackends_count.aws}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/aws.svg" />
                 </div>
             </div>
-            <div #cloud_hw class="cloud" (click)="showBackendsDeatil(1)">
-                <div class="ui-home-backend-count">{{allBackends.huaweipri}}</div>
+            <div #cloud_hw class="cloud" (click)="showBackendsDeatil('azure')">
+                <div class="ui-home-backend-count">{{allBackends_count.huaweipri}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/private-cloud.svg" width="42" />
                 </div>
             </div>            
-            <div #cloud_hw_p class="cloud" (click)="showBackendsDeatil(2)">
-                <div class="ui-home-backend-count">{{allBackends.huaweipub}}</div>
+            <div #cloud_hw_p class="cloud" (click)="showBackendsDeatil('obs')">
+                <div class="ui-home-backend-count">{{allBackends_count.huaweipub}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/huawei.svg" width="32" />
                 </div>
@@ -136,7 +136,7 @@
                 <input id="name" type="text" name="name" formControlName="name"  pInputText />
             </form-item>
             <form-item label="Type" >
-                <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" (onChange)="changeRegion();" [(ngModel)]="typeDropdown" formControlName="type" [options]="allTypes"  ></p-dropdown>
+                <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" formControlName="type" [options]="allTypes"  ></p-dropdown>
             </form-item>
             <form-item label="Region" >
                 <input id="region" type="text" name="region"  formControlName="region"  pInputText />
@@ -162,7 +162,7 @@
     <p-dataTable id="home-backend-detail" [value]="typeDetail" [rows]="10">
         <p-column field="name" header="{{I18N.keyID['sds_block_volume_name']}}" ></p-column>
         <p-column field="typeName" header="Type" ></p-column>
-        <p-column field="bucket" header="Bucket"></p-column>
+        <p-column field="bucketName" header="Bucket"></p-column>
         <p-column header="{{I18N.keyID['sds_block_volume_operation']}}" [style]="{'width':'140px'}">
             <ng-template pTemplate="body" let-backend="rowData" let-i="rowIndex">
                 <a class="a-rep-disabled" style="margin-right:10px;" >Modify</a>

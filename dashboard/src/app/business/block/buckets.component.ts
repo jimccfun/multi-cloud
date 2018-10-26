@@ -1,6 +1,6 @@
 import { Router,ActivatedRoute } from '@angular/router';
 import { Component, OnInit, ViewContainerRef, ViewChild, Directive, ElementRef, HostBinding, HostListener } from '@angular/core';
-import { I18NService } from 'app/shared/api';
+import { I18NService ,Consts} from 'app/shared/api';
 import { AppService } from 'app/app.service';
 import { trigger, state, style, transition, animate} from '@angular/animations';
 import { I18nPluralPipe } from '@angular/common';
@@ -116,10 +116,6 @@ export class BucketsComponent implements OnInit{
                 created:"2018-02-25 07:30:12",
             }
         ];
-        this.backendsOption.push({
-            label: "testaws",
-            value: "5bc583bf945c8100015d5eac"
-        });;
         this.lifeOperation =[{
             label:'Migration',
             value:'Migration'
@@ -154,7 +150,7 @@ export class BucketsComponent implements OnInit{
         }
         ];
         this.getBuckets();
-        this.getBackends();
+        // this.getBackends();
     }
     showcalendar(){
         this.selectTime = !this.selectTime;
@@ -215,16 +211,43 @@ export class BucketsComponent implements OnInit{
                 });
                 //this.backendMap.set(item.name,item.backend);
             });
+            this.initBucket2backendAnd2Type();
         });
     }
-
+    initBucket2backendAnd2Type(){
+        this.http.get('v1/s3').subscribe((res)=>{
+            let str = res['_body'];
+            let x2js = new X2JS();
+            let jsonObj = x2js.xml_str2json(str);
+            let buckets = (jsonObj ? jsonObj.ListAllMyBucketsResult.Buckets:[]);
+            let allBuckets = [];
+            if(Object.prototype.toString.call(buckets) === "[object Array]"){
+                allBuckets = buckets;
+            }else if(Object.prototype.toString.call(buckets) === "[object Object]"){
+                allBuckets = [buckets];
+            }
+            Consts.BUCKET_BACKND.clear();
+            Consts.BUCKET_TYPE.clear();
+            this.http.get('v1/{project_id}/backends').subscribe((res)=>{
+                let backends = res.json().backends ? res.json().backends :[];
+                let backendsObj = {};
+                backends.forEach(element => {
+                    backendsObj[element.name]= element.type;
+                });
+                allBuckets.forEach(item=>{
+                    Consts.BUCKET_BACKND.set(item.Name,item.LocationConstraint);
+                    Consts.BUCKET_TYPE.set(item.Name,backendsObj[item.LocationConstraint]);
+                });
+            });
+        });
+    }
     getTypes() {
         this.allTypes = [];
         this.BucketService.getTypes().subscribe((res) => {
-            res.json().forEach(element => {
+            res.json().types.forEach(element => {
                 this.allTypes.push({
                     label: element.name,
-                    value: element.id
+                    value: element.name
                 })
             });
         });
@@ -260,7 +283,8 @@ export class BucketsComponent implements OnInit{
     getBackendsByTypeId() {
         this.backendsOption = [];
         this.BucketService.getBackendsByTypeId(this.selectType).subscribe((res) => {
-            res.json().forEach(element => {
+            let backends = res.json().backends ? res.json().backends :[];
+            backends.forEach(element => {
                 this.backendsOption.push({
                     label: element.name,
                     value: element.name

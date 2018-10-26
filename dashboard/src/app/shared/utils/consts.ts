@@ -26,4 +26,9 @@ export const Consts = {
     /** 百分比显示小数位数 **/
 
     /** 百分比显示小数位数 **/
+    /**
+     * only for bucket to backend and to type
+     */
+    BUCKET_BACKND : new Map<string,string>(),
+    BUCKET_TYPE:new Map<string,string>()
 }

@@ -9,7 +9,7 @@ export class MigrationService {
     private paramStor: ParamStorService
   ) { }
 
-  url = 'v1beta/{project_id}/migration';
+  url = 'v1/{project_id}/plans';
 
   createMigration(param) {
     return this.http.post(this.url, param);

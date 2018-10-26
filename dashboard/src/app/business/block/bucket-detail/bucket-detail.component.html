@@ -9,7 +9,7 @@
         <div class="table-toolbar">
             <div class="left">
                 <button class="ui-button-secondary" pButton type="button" label="Upload" (click)="uploadDisplay=true"></button>
-                <button pButton type="button" disabled="true" label="Create Folder"></button>
+                <button pButton type="button" disabled="true"  label="Create Folder" (click)="showDialog('fromFolder')" ></button>
                 <button pButton type="button" [disabled]="selectedDir.length === 0" (click)="deleteMultiDir()" label="{{I18N.keyID['sds_block_volume_delete']}}"></button>
             </div>
             <div class="right">
@@ -25,7 +25,7 @@
             <p-column field="ObjectKey" header="{{I18N.keyID['sds_block_volume_name']}}" ></p-column>
             <p-column field="Size" header="Size" ></p-column>
             <p-column field="BucketName" header="Location" ></p-column>
-            <p-column field="last_modified" header="Last Modified"></p-column>
+            <p-column field="LastModified" header="Last Modified"></p-column>
             <p-column header="{{I18N.keyID['sds_block_volume_operation']}}" [style]="{'width': '335px'}">
                 <ng-template pTemplate="body" let-file="rowData" let-i="rowIndex">
                     <a (click)="downloadFile(file)" >Download</a>
@@ -50,6 +50,17 @@
             <p-footer>
                 <button type="submit" class="ui-button-secondary" pButton (click)="uploadFile()" label="{{I18N.keyID['ok']}}"></button>
                 <button type="button" pButton (click)="uploadDisplay=false"  label="{{I18N.keyID['cancel']}}"></button>
+            </p-footer>
+        </p-dialog>
+        <p-dialog  header="Create Folder" [(visible)]="showCreateFolder" [width]="600" modal="modal">
+            <form [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="createFolderForm" [errorMessage]="errorMessage">
+                <form-item label="Folder Name" [required]="true">
+                    <input type="text" pInputText formControlName="name" />
+                </form-item>
+            </form>
+            <p-footer>
+                <button type="submit" class="ui-button-secondary" pButton (click)="createFolder()" label="{{I18N.keyID['ok']}}"></button>
+                <button type="button" pButton (click)="showCreateFolder=false"  label="{{I18N.keyID['cancel']}}"></button>
             </p-footer>
         </p-dialog>
         <p-confirmDialog></p-confirmDialog>     

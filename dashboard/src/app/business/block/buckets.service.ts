@@ -17,7 +17,7 @@ export class BucketService {
   }
 
   //Upload file
-  uploadFile(bucketName,param,option?) {
+  uploadFile(bucketName,param?,option?) {
     return this.http.put(this.url+`/${bucketName}`, param,option);
   }
 
@@ -62,11 +62,11 @@ export class BucketService {
   }
 
   getTypes() : Observable<any> {
-    return this.http.get('v1beta/{project_id}/type');
+    return this.http.get('v1/{project_id}/types');
   }
 
   getBackendsByTypeId(typeId): Observable<any> {
-    return this.http.get('v1beta/{project_id}/backend?type=' + typeId);
+    return this.http.get('v1/{project_id}/backends?type=' + typeId);
   }
 }
 

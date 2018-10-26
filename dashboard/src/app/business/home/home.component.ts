@@ -3,11 +3,12 @@ import { Http } from '@angular/http';
 import { ParamStorService } from 'app/shared/api';
 import { ProfileService } from 'app/business/profile/profile.service';
 import { Observable } from "rxjs/Rx";
-import { I18NService ,HttpService} from 'app/shared/api';
+import { I18NService ,HttpService,Consts} from 'app/shared/api';
 import { ReactiveFormsModule, FormsModule,FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { MenuItem ,ConfirmationService,ConfirmDialogModule} from '../../components/common/api';
 import { Router } from '@angular/router';
 
+declare let X2JS:any;
 @Component({
     templateUrl: './home.component.html',
     styleUrls: [
@@ -31,7 +32,7 @@ export class HomeComponent implements OnInit {
     allTypes = [];
     allRegions = [];
     showBackends = false;
-    allBackends={
+    allBackends_count={
         aws:0,
         huaweipri:0,
         huaweipub:0
@@ -45,8 +46,8 @@ export class HomeComponent implements OnInit {
     backendForm :FormGroup;
     typeDetail = [];
     selectedType:any;
-    typeDropdown:any;
     selectedRegions = [];
+    Allbackends = [];
 
     @ViewChild("path") path: ElementRef;
     @ViewChild("cloud_aws") c_AWS: ElementRef;
@@ -71,13 +72,12 @@ export class HomeComponent implements OnInit {
         if(this.paramStor.CURRENT_USER().split("|")[0] == "admin"){
             this.showAdminStatis = true;
             // this.getCountData();
+            this.getCounts();
+            this.getType();
         }else{
             this.showAdminStatis = false;
             this.getTenantCountData();
         }
-        this.getCounts();
-        this.getType();
-        this.listStorage();
         this.backendForm = this.fb.group({
             "name":[],
             "type":[],
@@ -239,7 +239,6 @@ export class HomeComponent implements OnInit {
             label:'CN South-Guangzhou',
             value:'CN South-Guangzhou'
         }]];
-
         let that = this;
         document.body.onmousemove = function(e){
             let initPos = 350;
@@ -263,37 +262,71 @@ export class HomeComponent implements OnInit {
               item.style.display = "block";
             }) 
         }
+        this.initBucket2backendAnd2Type();
+    }
+    initBucket2backendAnd2Type(){
+        this.http.get('v1/s3').subscribe((res)=>{
+            let str = res['_body'];
+            let x2js = new X2JS();
+            let jsonObj = x2js.xml_str2json(str);
+            let buckets = (jsonObj ? jsonObj.ListAllMyBucketsResult.Buckets:[]);
+            let allBuckets = [];
+            if(Object.prototype.toString.call(buckets) === "[object Array]"){
+                allBuckets = buckets;
+            }else if(Object.prototype.toString.call(buckets) === "[object Object]"){
+                allBuckets = [buckets];
+            }
+            Consts.BUCKET_BACKND.clear();
+            Consts.BUCKET_TYPE.clear();
+            this.http.get('v1/{project_id}/backends').subscribe((res)=>{
+                let backends = res.json().backends ? res.json().backends :[];
+                let backendsObj = {};
+                backends.forEach(element => {
+                    backendsObj[element.name]= element.type;
+                });
+                allBuckets.forEach(item=>{
+                    Consts.BUCKET_BACKND.set(item.Name,item.LocationConstraint);
+                    Consts.BUCKET_TYPE.set(item.Name,backendsObj[item.LocationConstraint]);
+                });
+                this.initBackendsAndNum(backends);//must after Consts.BUCKET_BACKND.set
+            });
+        });
+    }
+    initBackendsAndNum(backends){
+        let backendArr = Array.from(Consts.BUCKET_BACKND.values());
+        backends.forEach(element => {
+            element.typeName = element.type;
+            element.canDelete = backendArr.includes(element.name);
+        });
+        let result=backends.reduce(function(initArray,item){
+            let index=item.type;
+            if(initArray[index]){
+                initArray[index].push(item)
+            }else{
+                initArray[index]=[item]
+             }
+            return  initArray;
+        },[]);
+        this.Allbackends = result;
+        this.allBackends_count.aws = this.Allbackends["aws"] ? this.Allbackends["aws"].length :0;
+        this.allBackends_count.huaweipri = this.Allbackends["azure"] ? this.Allbackends["azure"].length :0;
+        this.allBackends_count.huaweipub = this.Allbackends["obs"] ? this.Allbackends["obs"].length :0;
+    }
+    getType(){
+        let url = 'v1/{project_id}/types';
+        this.http.get(url).subscribe((res)=>{
+            let all = res.json().types;
+            console.log(all)
+            all.forEach(element => {
+                this.allTypes.push({
+                    label:element.name,
+                    value:element.name
+                });
+                this.typeJSON[element.name] = element.name;
+            });
+        });
     }
 
-    getType(){
-        // let url = 'v1beta/{project_id}/type?page=1&limit=3';
-        // this.http.get(url).subscribe((res)=>{
-        //     let all = res.json();
-        //     console.log(all)
-        //     all.forEach(element => {
-        //         this.allTypes.push({
-        //             label:element.name,
-        //             value:element.id
-        //         });
-        //         this.typeJSON[element.id] = element.name;
-        //     });
-        // });
-    }
-    changeRegion(){
-        // this.selectedRegions = this.allRegions[this.typeDropdown];
-    }
-    listStorage(){
-       let  backendUrl = "v1beta/{project_id}/backend";
-    //    this.http.get(backendUrl + "/count?type=0" ).subscribe((res)=>{
-    //        this.allBackends.aws = res.json().count;
-    //    });
-    //    this.http.get(backendUrl + "/count?type=1").subscribe((res)=>{
-    //         this.allBackends.huaweipri = res.json().count;
-    //     });
-    //     this.http.get(backendUrl + "/count?type=2").subscribe((res)=>{
-    //         this.allBackends.huaweipub = res.json().count;
-    //     });
-    }
     getProfiles() {
         this.profileService.getProfiles().subscribe((res) => {
             let profiles = res.json();
@@ -432,21 +465,7 @@ export class HomeComponent implements OnInit {
     showBackendsDeatil(type){
         this.showBackends = true;
         this.selectedType = type;
-        let url = 'v1/{project_id}/backends/?type='+type;
-        this.http.get(url).subscribe((res)=>{
-            let types = res.json();
-            types.forEach(element => {
-                element.typeName = this.typeJSON[element.type];
-                element.canDelete = false;
-            });
-            this.typeDetail = types;
-            this.typeDetail.forEach(ele =>{
-                this.http.get('v1beta/{project_id}/bucket/?backend='+ele.name).subscribe((resBuket)=>{
-                    ele.canDelete = resBuket.json().length !== 0;
-                    console.log(resBuket.json().length);
-                });
-            })
-        });
+        this.typeDetail = this.Allbackends[type] ? this.Allbackends[type]:[];
     }
     deleteBackend(backend){
         if(backend.canDelete){
@@ -474,10 +493,13 @@ export class HomeComponent implements OnInit {
                     if(backend == "close"){
                         return;
                     }else{
-                        let url = 'v1beta/{project_id}/backend/'+backend.id;
+                        let url = 'v1/{project_id}/backends/'+backend.id;
                         this.http.delete(url).subscribe((res)=>{
-                            this.showBackendsDeatil(this.selectedType);
-                            this.listStorage();
+                            this.http.get('v1/{project_id}/backends').subscribe((res)=>{
+                                let backends = res.json().backends ? res.json().backends :[];
+                                this.initBackendsAndNum(backends);
+                                this.showBackendsDeatil(this.selectedType);
+                            });
                         });
                     }
                 }
@@ -520,7 +542,10 @@ export class HomeComponent implements OnInit {
         this.http.post("v1/{tenantId}/backends", param).subscribe((res) => {
             console.log(res);
             this.showRgister = false;
-            this.listStorage();
+            this.http.get('v1/{project_id}/backends').subscribe((res)=>{
+                let backends = res.json().backends ? res.json().backends :[];
+                this.initBackendsAndNum(backends);
+            });
         });
     }
     showRegister(){

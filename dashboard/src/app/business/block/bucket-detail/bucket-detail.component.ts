@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router,ActivatedRoute} from '@angular/router';
-import { I18NService, Utils } from 'app/shared/api';
+import { I18NService, Utils ,HttpService} from 'app/shared/api';
 import { BucketService} from '../buckets.service';
 // import { FileUploader } from 'ng2-file-upload';
 import { MenuItem ,ConfirmationService} from '../../../components/common/api';
 import { HttpClient } from '@angular/common/http';
 import {XHRBackend, RequestOptions, Request, RequestOptionsArgs, Response, Headers, BaseRequestOptions } from '@angular/http';
+import { FormControl, FormGroup, FormBuilder, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 declare let X2JS:any;
 @Component({
   selector: 'bucket-detail',
@@ -35,13 +36,29 @@ export class BucketDetailComponent implements OnInit {
   selectType:any;
   selectBackend:any;
   bucket;
+  showCreateFolder = false;
+  createFolderForm:FormGroup;
+  errorMessage = {
+    "name": { required: "Name is required." },
+    "description": { maxlength: "Max. length is 200." },
+    "repName":{ required: "Name is required." },
+    "profileOption":{ required: "Name is required." },
+    "expandSize":{required: "Expand Capacity is required."}
+  };
   constructor(
     private ActivatedRoute: ActivatedRoute,
     public I18N:I18NService,
     private BucketService: BucketService,
     private confirmationService: ConfirmationService,
-    private http: HttpClient
-  ) { }
+    private http: HttpService,
+    private fb:FormBuilder,
+    private httpClient:HttpClient
+  ) 
+  {
+    this.createFolderForm = this.fb.group({
+      "name": ['', Validators.required]
+    });
+  }
 
   ngOnInit() {
     this.ActivatedRoute.params.subscribe((params) => {
@@ -117,22 +134,42 @@ export class BucketDetailComponent implements OnInit {
   }
 
   downloadFile(file) {
-    this.http.get('v1beta/{project_id}/file/download?file_name=' + file.name, {responseType: 'arraybuffer'}).subscribe((res) => {
-      let blob = new Blob([res])
+    this.httpClient.get(`v1/s3/${this.bucketId}/${file.ObjectKey}`, {responseType: 'arraybuffer'}).subscribe((res)=>{
+      let blob = new Blob([res]);
       if (typeof window.navigator.msSaveBlob !== 'undefined') {  
-          window.navigator.msSaveBlob(blob, file.name);
+          window.navigator.msSaveBlob(blob, file.ObjectKey);
       } else {
         let URL = window.URL
         let objectUrl = URL.createObjectURL(blob)
-        if (file.name) {
+        if (file.ObjectKey) {
           var a = document.createElement('a')
           a.href = objectUrl
-          a.download = file.name
+          a.download = file.ObjectKey
           document.body.appendChild(a)
           a.click()
           a.remove()
         }
       }
+    });
+  }
+  showDialog(from){
+    switch(from){
+      case 'fromFolder':
+        this.createFolderForm.reset();
+        this.showCreateFolder = true;
+        break;
+    }
+  }
+  createFolder(){
+    if(!this.createFolderForm.valid){
+      for(let i in this.createFolderForm.controls){
+          this.createFolderForm.controls[i].markAsTouched();
+      }
+      return;
+    }
+    this.BucketService.uploadFile(this.bucketId+'/test/').subscribe((res) => {
+      this.showCreateFolder = false;
+      this.getAlldir();
     });
   }
   deleteMultiDir(){

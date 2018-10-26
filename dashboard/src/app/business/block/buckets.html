@@ -18,7 +18,7 @@
                 <a [routerLink]="['/bucketDetail/' + bucket.name]"  title="{{bucket.name}}">{{bucket.name}}</a>
             </ng-template>
         </p-column>
-        <p-column field="backend" header="Default Backend" ></p-column>
+        <p-column field="LocationConstraint" header="Default Backend" ></p-column>
         <p-column field="createdAt" header="Created At"></p-column>
         <p-column header="{{I18N.keyID['sds_block_volume_operation']}}" [style]="{'width': '335px'}">
             <ng-template pTemplate="body" let-bucket="rowData" let-i="rowIndex">

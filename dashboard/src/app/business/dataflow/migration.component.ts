@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewContainerRef, ViewChild, Directive, ElementRef, HostBinding, HostListener } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ViewChild, Directive, ElementRef, HostBinding, HostListener,EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { I18NService, Utils } from 'app/shared/api';
+import { I18NService, Utils ,Consts} from 'app/shared/api';
 import { FormControl, FormGroup, FormBuilder, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { AppService } from 'app/app.service';
 import { I18nPluralPipe } from '@angular/common';
@@ -10,7 +10,8 @@ import { identifierModuleUrl } from '@angular/compiler';
 import { MigrationService } from './migration.service';
 import { BucketService } from './../block/buckets.service';
 import { Http } from '@angular/http';
-
+import { ReactiveFormsModule, FormsModule} from '@angular/forms';
+declare let X2JS:any;
 let _ = require("underscore");
 @Component({
     selector: 'migration-list',
@@ -25,7 +26,7 @@ export class MigrationListComponent implements OnInit {
     createMigrateShow = false;
     createMigrationForm:FormGroup;
     dataAnalysis = [];
-    excute = ["true"];
+    excute = true;
     showAnalysis = false;
     deleteSrcObject = [];
     selectTime = true;
@@ -34,7 +35,6 @@ export class MigrationListComponent implements OnInit {
     ak = "";
     sk = "";
     analysisCluster = "";
-    srcBucket = "";
     destBucket = "";
     destBuckets = [];
     backendMap = new Map();
@@ -45,6 +45,11 @@ export class MigrationListComponent implements OnInit {
     rule = "";
     excutingTime;
     migrationId: string;
+    type2svg = {
+        "aws":'aws.svg',
+        "obs":"huawei.svg",
+        "FusionCloud":'private-cloud.svg'
+    }
     constructor(
         public I18N: I18NService,
         private router: Router,
@@ -54,42 +59,52 @@ export class MigrationListComponent implements OnInit {
         private BucketService:BucketService,
         private http: Http
     ) {
-
+        this.createMigrationForm = this.fb.group({
+            "name": ['',{validators:[Validators.required], updateOn:'change'}],
+            "srcBucket": ['',{validators:[Validators.required], updateOn:'change'}],
+            "destBucket":['',{validators:[Validators.required], updateOn:'change'}],
+            "rule":[''],
+            "deleteSrcObject":[false],
+            "excuteTime":[false],
+            "excute":[true]
+        });
     }
+    @Output() changeNumber = new EventEmitter<boolean>();
 
     ngOnInit() {
         this.allMigrations = []
         this.getBuckets();
+        
     }
     configCreateMigration(){
         this.createMigrateShow=true;
-        this.migrationName = "";
-        this.srcBucket = "";
-        this.destBucket = "";
-        this.rule ="";
-        this.showAnalysis = false;
-        this.analysisCluster= "";
-        this.ak ="";
-        this.sk ="";
-        this.deleteSrcObject =[];
-        this.jarParam ="";
-        this.anaParam ="";
-        this.excute = ["true"];
-        this.selectTime = true;
-        this.dataAnalysis = [];
-        this.excutingTime="";
+        this.createMigrationForm.reset(
+            {
+            'name':'',
+            "deleteSrcObject":false,
+            "excuteTime":false,
+            "excute":true
+            }
+        );
     }
     getBuckets() {
         this.bucketOption = [];
         this.BucketService.getBuckets().subscribe((res) => {
-            let allbuckets = res.json();
-            allbuckets.forEach(element => {
+            let str = res._body;
+            let x2js = new X2JS();
+            let jsonObj = x2js.xml_str2json(str);
+            let buckets = (jsonObj ? jsonObj.ListAllMyBucketsResult.Buckets:[]);
+            let allBuckets = [];
+            if(Object.prototype.toString.call(buckets) === "[object Array]"){
+                allBuckets = buckets;
+            }else if(Object.prototype.toString.call(buckets) === "[object Object]"){
+                allBuckets = [buckets];
+            }
+            allBuckets.forEach(item=>{
                 this.bucketOption.push({
-                    label:element.name,
-                    value:element.name
-                });
-                this.backendMap.set(element.name,element.backend);
-                this.bucketMap.set(element.name,element);
+                            label:item.Name,
+                            value:item.Name
+                        });
             });
             this.getMigrations();
         });
@@ -98,63 +113,53 @@ export class MigrationListComponent implements OnInit {
         this.destBuckets = [];
         this.engineOption = [];
         this.bucketOption.forEach((value,index)=>{
-            if(this.backendMap.get(value.label) !== this.backendMap.get(this.srcBucket)){
+           if(Consts.BUCKET_BACKND.get(value.label) !== Consts.BUCKET_BACKND.get(this.createMigrationForm.value.srcBucket)){ // tag wait bucket backend
                 this.destBuckets.push({
                     label:value.label,
                     value:value.value
                 });
             }
         });
-        this.http.get("v1beta/{project_id}/file?bucket_id="+this.bucketMap.get(this.srcBucket).id).subscribe((res)=>{
-            let allFile = res.json();
-            for(let item of allFile){
-                if(item.name == "driver_behavior.jar"){
-                    this.engineOption = [{
-                        label:"driver_behavior.jar",
-                        value:"driver_behavior.jar"
-                    }];
-                    break;
-                }
-            }
-        });
+        
     }
     getMigrations() {
         this.allMigrations = [];
         this.MigrationService.getMigrations().subscribe((res) => {
-            this.allMigrations = res.json();
+            this.changeNumber.emit(true);
+            this.allMigrations = res.json().plans ? res.json().plans :[];
             this.allMigrations.forEach((item,index)=>{
-                let p1 = this.http.get("v1beta/{project_id}/backend?name="+this.backendMap.get(item.srcBucket)).toPromise();
-                let p2 = this.http.get("v1beta/{project_id}/backend?name="+this.backendMap.get(item.destBucket)).toPromise();
-                Promise.all([p1, p2]).then(function (results) {
-                    if(results[0].json().length !== 0){
-                        item.srctype = results[0].json()[0].type;
-                    }
-                    if(results[1].json().length !== 0){
-                        item.desttype = results[1].json()[0].type;
-                    }
-                });
+                item.srctype = this.type2svg[Consts.BUCKET_TYPE.get(item.sourceConn.bucketName)];
+                item.desttype = this.type2svg[Consts.BUCKET_TYPE.get(item.destConn.bucketName)];
+                item.srcBucket = item.sourceConn.bucketName;
+                item.destBucket = item.destConn.bucketName;
             });
         });
     }
 
     createMigration() {
-        let excutingTime = new Date().getTime();
-        if (!this.selectTime) {
-            excutingTime = this.excutingTime.getTime();
+        if(!this.createMigrationForm.valid){
+            for(let i in this.createMigrationForm.controls){
+                this.createMigrationForm.controls[i].markAsTouched();
+            }
+            return;
         }
         let param = {
-            "name": this.migrationName,
-            "srcBucket": this.srcBucket,
-            "destBucket": this.destBucket,
-            "excutingTime": excutingTime,
-            "rule": this.rule ? this.rule :"--" ,
-            "configDataAnalysis": this.showAnalysis,
-            "analysisCluster": this.analysisCluster,
-            "ak": this.ak,
-            "sk": this.sk,
-            "deleteSrcObject": this.deleteSrcObject.length !== 0 ,
-            "jar":this.jarParam,
-            "anaparam":this.anaParam
+            "name": this.createMigrationForm.value.name,
+            "description": "for test",
+            "type": "migration",
+            // "policyId":"5bacc5be1d41c831c91e32cd",
+            // "policyEnabled": true,
+            "sourceConn": {
+                "storType": "opensds-obj",
+                "bucketName": this.createMigrationForm.value.srcBucket
+            },
+            "destConn": {
+                "storType": "opensds-obj",
+                "bucketName": this.createMigrationForm.value.destBucket
+            },
+            "filter": {},
+            "overWrite": true,
+            "remainSource": !this.createMigrationForm.value.deleteSrcObject
         }
         this.MigrationService.createMigration(param).subscribe((res) => {
             this.createMigrateShow = false;
@@ -182,7 +187,7 @@ export class MigrationListComponent implements OnInit {
         }
     }
     showcalendar(){
-        if(this.excute.length !== 0){
+        if(this.createMigrationForm.value.excute){
          this.selectTime = true;
         }else{
          this.selectTime = false;
@@ -211,7 +216,7 @@ export class MigrationListComponent implements OnInit {
                     else if(func === "delete"){
                         let id = migrate.id;
                         this.MigrationService.deleteMigration(id).subscribe((res) => {
-                            this.ngOnInit();
+                            this.getMigrations();
                         });
                     }
                 }

@@ -32,7 +32,6 @@ let routers = [{
     ConfirmDialogModule,
     CheckboxModule,
     DropdownModule,
-    // FileUploadModule
     HttpClientModule
   ],
   declarations: [
