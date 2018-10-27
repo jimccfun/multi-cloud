@@ -45,6 +45,7 @@ export class BucketDetailComponent implements OnInit {
     "profileOption":{ required: "Name is required." },
     "expandSize":{required: "Expand Capacity is required."}
   };
+  BYTES_PER_CHUNK = 1024 * 1024 * 5;
   constructor(
     private ActivatedRoute: ActivatedRoute,
     public I18N:I18NService,
@@ -84,6 +85,9 @@ export class BucketDetailComponent implements OnInit {
       }else if(Object.prototype.toString.call(alldir) === "[object Object]"){
           this.allDir = [alldir];
       }
+      this.allDir.forEach(item=>{
+        item.size = Utils.getDisplayCapacity(item.Size,2,'KB')
+      });
     });
   }
   getTypes() {
@@ -122,15 +126,64 @@ export class BucketDetailComponent implements OnInit {
       this.selectFile = file;
     }
   }
+
+  uploadPart(uploadId,options){
+    let totalSlices;
+    let start = 0;
+    let end;
+    let index = 0;
+    totalSlices = Math.ceil(this.selectFile['size'] / this.BYTES_PER_CHUNK);
+    let proArr = [];
+    while(start < this.selectFile['size']) {
+      end = start + this.BYTES_PER_CHUNK;
+      if(end > this.selectFile['size']) {
+        end = this.selectFile['size'];
+      }
+      proArr.push(this.uploadload(this.selectFile, index, start, end,uploadId,options));
+      start = end;
+      index++;
+      if ( index>=totalSlices ){
+        // thrid step put all
+        Promise.all(proArr).then(result=>{
+          console.log(result);
+          this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name+'?uploadId='+uploadId,options).subscribe((res) => {
+            this.uploadDisplay = false;
+            this.getAlldir();
+          });
+        });
+      }
+    }
+  }
+  uploadload(blob, index, start, end,uploadId,options) {
+    let fd;
+    let chunk;  
+    let sliceIndex=blob.name.split('.')[0]+index+'.'+blob.name.split('.')[1];
+    chunk =blob.slice(start,end);
+    fd = new FormData();
+    fd.append("UpgradeFileName", chunk, sliceIndex);
+    return this.BucketService.uploadFile(`${this.bucketId}/${sliceIndex}?partNumber=${index+1}&uploadId=${uploadId}`,fd,options).toPromise();
+  }
   uploadFile() {
-    let form = new FormData();
-    form.append("file", this.selectFile,this.selectFile.name);
     let headers = new Headers();
     headers.append('Content-Type', 'application/xml');
     if(this.selectBackend){
       headers.append('x-amz-storage-class',this.selectBackend);
     }
     let options = new RequestOptions({ headers: headers });
+    if(this.selectFile['size'] > this.BYTES_PER_CHUNK){
+      //first step get uploadId
+      this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name + "?uploads",options).subscribe((res) => {
+        let str = res['_body'];
+        let x2js = new X2JS();
+        let jsonObj = x2js.xml_str2json(str);
+        let uploadId = jsonObj.InitiateMultipartUploadResult.UploadId;
+        // second step part upload
+        this.uploadPart(uploadId,options);
+      });
+      return;
+    }
+    let form = new FormData();
+    form.append("file", this.selectFile,this.selectFile.name);
     this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name,form,options).subscribe((res) => {
       this.uploadDisplay = false;
       this.getAlldir();
@@ -177,7 +230,6 @@ export class BucketDetailComponent implements OnInit {
     });
   }
   deleteMultiDir(){
-    console.log(this.selectedDir);
     let msg = "<div>Are you sure you want to delete the Files ?</div><h3>[ "+ this.selectedDir.length +" ]</h3>";
     let header ="Delete";
     let acceptLabel = "Delete";

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { I18NService, Utils } from 'app/shared/api';
+import { I18NService, Utils ,Consts} from 'app/shared/api';
 import { MigrationService } from '../migration.service';
 
 @Component({
@@ -27,7 +27,8 @@ export class MigrationDetailComponent implements OnInit {
     "srcBackend": "",
     "destBackend": "",
     "objectnum":0,
-    "totalsize":"0 MB"
+    "totalsize":"0 MB",
+    "percent":'0'
   }
 
   constructor(
@@ -38,7 +39,15 @@ export class MigrationDetailComponent implements OnInit {
 
   ngOnInit() {
     if(this.job){
-      // tag add content
+      this.migrationInstance.excutingTime = new Date(this.job.createTime * 1000).toDateString();
+      this.migrationInstance.endTime = this.job.endTime > 0 ? new Date(this.job.endTime * 1000).toDateString() :'--';
+      this.migrationInstance.totalsize = Utils.getDisplayCapacity(this.job.totalCapacity,2,'KB');
+      this.migrationInstance.objectnum = this.job.totalCount;
+      this.migrationInstance.srcBucket = this.job.sourceLocation;
+      this.migrationInstance.destBucket = this.job.destLocation;
+      this.migrationInstance.srcBackend = Consts.BUCKET_BACKND.get(this.job.sourceLocation);
+      this.migrationInstance.destBackend = Consts.BUCKET_BACKND.get(this.job.destLocation);
+      this.migrationInstance.percent = this.job.progress;
     }
   }
 }

@@ -42,7 +42,6 @@ export class HomeComponent implements OnInit {
         bucketsCount:0,
         migrationCount:0
     }
-    typeJSON ={};
     backendForm :FormGroup;
     typeDetail = [];
     selectedType:any;
@@ -317,13 +316,11 @@ export class HomeComponent implements OnInit {
         let url = 'v1/{project_id}/types';
         this.http.get(url).subscribe((res)=>{
             let all = res.json().types;
-            console.log(all)
             all.forEach(element => {
                 this.allTypes.push({
                     label:element.name,
                     value:element.name
                 });
-                this.typeJSON[element.name] = element.name;
             });
         });
     }
@@ -537,7 +534,6 @@ export class HomeComponent implements OnInit {
             "access": this.backendForm.value.ak
         };
         this.http.post("v1/{tenantId}/backends", param).subscribe((res) => {
-            console.log(res);
             this.showRgister = false;
             this.http.get('v1/{project_id}/backends').subscribe((res)=>{
                 let backends = res.json().backends ? res.json().backends :[];

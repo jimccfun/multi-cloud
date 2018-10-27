@@ -30,7 +30,7 @@
     <p-column header="{{I18N.keyID['sds_block_volume_operation']}}" [style]="{'width': '166px'}">
         <ng-template pTemplate="body" let-migrate="rowData" let-i="rowIndex">
             <a (click)="deleteMigrate(migrate)">Delete</a>
-            <a *ngIf="migrate.status ==='completed'" (click)="remigration(migrate)">Remigrate</a>
+            <a *ngIf="migrate.status ==='succeed' || migrate.status === 'waiting'" (click)="remigration(migrate)">Remigrate</a>
         </ng-template>
     </p-column>
     <ng-template pTemplate="rowexpansion">
@@ -53,9 +53,9 @@
             <p-calendar [disabled]="selectTime" [showTime]="true" name="excutingTime" formControlName="excuteTime"></p-calendar>
             <p-checkbox binary="true" (onChange)="showcalendar()" name="excuteTime" formControlName="excute"  label="Immediately"></p-checkbox>
         </form-item>
-        <div style="margin-bottom: 10px;"><span style="font-size: 16px;font-style: normal">Rule</span></div>
-        <span style="display:inline-block;margin-bottom: 10px;color: rgb(136, 147, 166);">Without a rule, all objects in the source bucket will be migrated; otherwise only objects selected based on the rule will be migrated.</span>
-        <textarea [rows]="2" [cols]="78" pInputTextarea name="rule" formControlName="rule"></textarea>
+        <div *ngIf= "false" style="margin-bottom: 10px;"><span style="font-size: 16px;font-style: normal">Rule</span></div>
+        <span *ngIf= "false" style="display:inline-block;margin-bottom: 10px;color: rgb(136, 147, 166);">Without a rule, all objects in the source bucket will be migrated; otherwise only objects selected based on the rule will be migrated.</span>
+        <textarea *ngIf= "false" [rows]="2" [cols]="78" pInputTextarea name="rule" formControlName="rule"></textarea>
         <div *ngIf= "false" style="margin:10px 0">
             <p-checkbox (onChange)="showDetail()" name="analysis"  value="true" [(ngModel)]="dataAnalysis" label="Config Data analysis"></p-checkbox>
         </div>

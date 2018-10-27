@@ -180,8 +180,7 @@ export class MigrationListComponent implements OnInit {
             });
         }else{
             let date = new Date(this.createMigrationForm.value.excuteTime);
-            let tigger = `00 ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} ${date.getDay()}`
-            console.log(tigger);
+            let tigger = `00 ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} ${date.getDay()}`;
             let policy={
                 "name":"cron test",
                 "tenant":"all",
@@ -191,7 +190,6 @@ export class MigrationListComponent implements OnInit {
                     "tiggerProperties":"22 22 22 22 11 5"
                 }
             };
-            // console.log(this.createMigrationForm.value.excuteTime);
             this.http.post('v1/{project_id}/policies',policy).subscribe((res)=>{
                 param['policyId'] = res.json().policy.id;
                 param['policyEnabled'] = true;
@@ -244,9 +242,9 @@ export class MigrationListComponent implements OnInit {
             accept: ()=>{
                 try {
                     if(func === "Remigrate"){
-                        this.http.post('v1beta/{project_id}/remigration',{"id":migrate.id}).subscribe((res)=>{
+                        this.http.post(`v1/{project_id}/plans/${migrate.id}/run`,{}).subscribe((res)=>{
                             this.getMigrations();
-                        });
+                        });    
                     }
                     else if(func === "delete"){
                         let id = migrate.id;
