@@ -48,7 +48,7 @@ export class MigrationListComponent implements OnInit {
     type2svg = {
         "aws":'aws.svg',
         "obs":"huawei.svg",
-        "FusionCloud":'private-cloud.svg'
+        "azure":'azure.svg'
     }
     constructor(
         public I18N: I18NService,
