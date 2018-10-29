@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewContainerRef, ViewChild, Directive, ElementRef, HostBinding, HostListener } from '@angular/core';
-import { Http } from '@angular/http';
 import { ParamStorService } from 'app/shared/api';
 import { ProfileService } from 'app/business/profile/profile.service';
 import { Observable } from "rxjs/Rx";
@@ -30,7 +29,6 @@ export class HomeComponent implements OnInit {
     lineOption = {};
     showRgister = false;
     allTypes = [];
-    allRegions = [];
     showBackends = false;
     allBackends_count={
         aws:0,
@@ -214,40 +212,6 @@ export class HomeComponent implements OnInit {
                 }
             ]
         }
-        this.allRegions = [[{
-            label:'us-west-1',
-            value:'us-west-1'
-        },
-        {
-            label:'us-west-2',
-            value:'us-west-2'
-        },
-        {
-            label:'us-east-1',
-            value:'us-east-1'
-        },
-        {
-            label:'us-east-2',
-            value:'us-east-2'
-        }],[{
-            label:'cn-north-2',
-            value:'cn-north-2'
-        },
-        {
-            label:'cn-south-1',
-            value:'cn-south-1'
-        }],[{
-            label:'AP-Hong Kong',
-            value:'AP-Hong Kong'
-        },
-        {
-            label:'CN North-Beijing1',
-            value:'CN North-Beijing1'
-        },
-        {
-            label:'CN South-Guangzhou',
-            value:'CN South-Guangzhou'
-        }]];
         let that = this;
         document.body.onmousemove = function(e){
             let initPos = 350;
@@ -549,7 +513,7 @@ export class HomeComponent implements OnInit {
         });
     }
     // // 创建backend
-    onSubmit(){
+    createBackend(){
         let param = {
             "name": this.backendForm.value.name,
             "type": this.backendForm.value.type,
@@ -559,7 +523,10 @@ export class HomeComponent implements OnInit {
             "security": this.backendForm.value.sk,
             "access": this.backendForm.value.ak
         };
-        this.http.post("v1/{tenantId}/backends", param).subscribe((res) => {
+        let options = {
+        timeout:18000
+        };
+        this.http.post("v1/{project_id}/backends", param,options).subscribe((res) => {
             this.showRgister = false;
             this.http.get('v1/{project_id}/backends').subscribe((res)=>{
                 let backends = res.json().backends ? res.json().backends :[];
