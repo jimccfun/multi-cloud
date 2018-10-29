@@ -30,5 +30,13 @@ export const Consts = {
      * only for bucket to backend and to type
      */
     BUCKET_BACKND : new Map<string,string>(),
-    BUCKET_TYPE:new Map<string,string>()
+    BUCKET_TYPE:new Map<string,string>(),
+    BYTES_PER_CHUNK : 1024 * 1024 * 5,
+    TIMEOUT:300000,
+    CLOUD_TYPE:['aws-s3','azure-blob','hw-obs'],
+    TYPE_SVG:{
+        "aws-s3":'aws.svg',
+        "hw-obs":"huawei.svg",
+        "azure-blob":'azure.svg'
+    }
 }

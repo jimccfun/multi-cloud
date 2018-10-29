@@ -10,19 +10,19 @@
             <div class="cloud-center" (click)="showRegister()">
                 <div class="ui-home-backend-add">+</div>
             </div>
-            <div #cloud_aws class="cloud" (click)="showBackendsDeatil('aws')">
+            <div #cloud_aws class="cloud" (click)="showBackendsDeatil(cloud_type[0])">
                 <div class="ui-home-backend-count">{{allBackends_count.aws}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/aws.svg" />
                 </div>
             </div>
-            <div #cloud_hw class="cloud" (click)="showBackendsDeatil('azure')">
+            <div #cloud_hw class="cloud" (click)="showBackendsDeatil(cloud_type[1])">
                 <div class="ui-home-backend-count">{{allBackends_count.huaweipri}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/azure.svg" width="42" />
                 </div>
             </div>            
-            <div #cloud_hw_p class="cloud" (click)="showBackendsDeatil('obs')">
+            <div #cloud_hw_p class="cloud" (click)="showBackendsDeatil(cloud_type[2])">
                 <div class="ui-home-backend-count">{{allBackends_count.huaweipub}}</div>
                 <div class="ui-home-backend-logo">
                     <img src="assets/business/images/common/huawei.svg" width="32" />
@@ -81,7 +81,20 @@
             </p-card>
         </div>
     </div>
-    
+    <p-dialog  header="Modify" [(visible)]="modifyBackendshow" [width]="600" modal="modal">
+        <form [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="modifyBackendForm" >
+            <form-item label="Access Key" [required]="true">
+                <input type="text" pInputText formControlName="ak" />
+            </form-item>
+            <form-item label="Secret Key" [required]="true">
+                <input type="text" pInputText formControlName="sk" />
+            </form-item>
+        </form>
+        <p-footer>
+            <button type="button" pButton (click)="modifyBackend()"  label="{{I18N.keyID['ok']}}"></button>
+            <button type="button" pButton (click)="modifyBackendshow = false"  label="{{I18N.keyID['cancel']}}"></button>
+        </p-footer>
+    </p-dialog>
 </div>
 
 <div class="home-font-color-class" *ngIf="!showAdminStatis">
@@ -165,7 +178,7 @@
         <p-column field="bucketName" header="Bucket"></p-column>
         <p-column header="{{I18N.keyID['sds_block_volume_operation']}}" [style]="{'width':'140px'}">
             <ng-template pTemplate="body" let-backend="rowData" let-i="rowIndex">
-                <a class="a-rep-disabled" style="margin-right:10px;" >Modify</a>
+                <a (click)="configModify(backend)" style="margin-right:10px;" >Modify</a>
                 <a (click)="deleteBackend(backend)">Delete</a>
             </ng-template>
         </p-column>

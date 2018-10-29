@@ -43,9 +43,9 @@
             </div>
             <div class="ui-grid-col-2" style="text-align: center">
                 <div class="ui-block-align-center">
-                    <span *ngIf="migrationInstance.status !== 'completed'">Rate of progress:{{migrationInstance.percent}}%</span>
-                    <div style="width:90%" *ngIf="migrationInstance.status !== 'completed'"  class="line-arrow-right enabled"></div>
-                    <div style="width:90%;margin-top: 32px;" *ngIf="migrationInstance.status === 'completed'" class="line-arrow-right enabled"></div>
+                    <span *ngIf="migrationInstance.status !== 'succeed'">Rate of progress:{{migrationInstance.percent}}%</span>
+                    <div style="width:90%" *ngIf="migrationInstance.status !== 'succeed'"  class="line-arrow-right enabled"></div>
+                    <div style="width:90%;margin-top: 32px;" *ngIf="migrationInstance.status === 'succeed'" class="line-arrow-right enabled"></div>
                 </div>
             </div>
             <div class="ui-grid-col-5 item-content-backgroud">

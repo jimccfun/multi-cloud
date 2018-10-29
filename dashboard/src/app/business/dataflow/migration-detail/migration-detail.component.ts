@@ -48,6 +48,7 @@ export class MigrationDetailComponent implements OnInit {
       this.migrationInstance.srcBackend = Consts.BUCKET_BACKND.get(this.job.sourceLocation);
       this.migrationInstance.destBackend = Consts.BUCKET_BACKND.get(this.job.destLocation);
       this.migrationInstance.percent = this.job.progress ? this.job.progress : 0 ;
+      this.migrationInstance.status = this.job.status;
     }
   }
 }

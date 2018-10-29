@@ -47,6 +47,10 @@ export class HomeComponent implements OnInit {
     selectedType:any;
     selectedRegions = [];
     Allbackends = [];
+    modifyBackendshow = false;
+    modifyBackendForm:FormGroup;
+    selectedBackend:any;
+    cloud_type = [];
 
     @ViewChild("path") path: ElementRef;
     @ViewChild("cloud_aws") c_AWS: ElementRef;
@@ -65,7 +69,9 @@ export class HomeComponent implements OnInit {
         private fb:FormBuilder,
         private ConfirmationService:ConfirmationService,
         private router: Router,
-    ) { }
+    ) { 
+        this.cloud_type = Consts.CLOUD_TYPE;
+    }
 
     ngOnInit() {
         if(this.paramStor.CURRENT_USER().split("|")[0] == "admin"){
@@ -83,6 +89,10 @@ export class HomeComponent implements OnInit {
             "region":[],
             "endpoint":[],
             "bucket":[],
+            "ak":[],
+            "sk":[],
+        });
+        this.modifyBackendForm = this.fb.group({
             "ak":[],
             "sk":[],
         });
@@ -308,9 +318,9 @@ export class HomeComponent implements OnInit {
             return  initArray;
         },[]);
         this.Allbackends = result;
-        this.allBackends_count.aws = this.Allbackends["aws"] ? this.Allbackends["aws"].length :0;
-        this.allBackends_count.huaweipri = this.Allbackends["azure"] ? this.Allbackends["azure"].length :0;
-        this.allBackends_count.huaweipub = this.Allbackends["obs"] ? this.Allbackends["obs"].length :0;
+        this.allBackends_count.aws = this.Allbackends[this.cloud_type[0]] ? this.Allbackends[Consts.CLOUD_TYPE[0]].length :0;
+        this.allBackends_count.huaweipri = this.Allbackends[this.cloud_type[1]] ? this.Allbackends[Consts.CLOUD_TYPE[1]].length :0;
+        this.allBackends_count.huaweipub = this.Allbackends[this.cloud_type[2]] ? this.Allbackends[Consts.CLOUD_TYPE[2]].length :0;
     }
     getType(){
         let url = 'v1/{project_id}/types';
@@ -324,7 +334,23 @@ export class HomeComponent implements OnInit {
             });
         });
     }
-
+    configModify(backend){
+        this.modifyBackendshow = true;
+        this.selectedBackend = backend;
+        this.modifyBackendForm.reset(
+            {
+            'ak':'',
+            "sk":''
+            }
+        );
+    }
+    modifyBackend(){
+        let param = {
+            "security": this.modifyBackendForm.value.sk,
+            "access": this.modifyBackendForm.value.ak
+        }
+        this.http.put(`v1/{project_id}/backends/${this.selectedBackend.id}`,param).subscribe((res)=>{});
+    }
     getProfiles() {
         this.profileService.getProfiles().subscribe((res) => {
             let profiles = res.json();

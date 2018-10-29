@@ -45,11 +45,6 @@ export class MigrationListComponent implements OnInit {
     rule = "";
     excutingTime;
     job: any;
-    type2svg = {
-        "aws":'aws.svg',
-        "obs":"huawei.svg",
-        "azure":'azure.svg'
-    }
     constructor(
         public I18N: I18NService,
         private router: Router,
@@ -135,8 +130,8 @@ export class MigrationListComponent implements OnInit {
                     jobsObj[element.planId] = element;
                 });
                 AllMigrations.forEach((item,index)=>{
-                    item.srctype = this.type2svg[Consts.BUCKET_TYPE.get(item.sourceConn.bucketName)];
-                    item.desttype = this.type2svg[Consts.BUCKET_TYPE.get(item.destConn.bucketName)];
+                    item.srctype = Consts.TYPE_SVG[Consts.BUCKET_TYPE.get(item.sourceConn.bucketName)];
+                    item.desttype = Consts.TYPE_SVG[Consts.BUCKET_TYPE.get(item.destConn.bucketName)];
                     item.srcBucket = item.sourceConn.bucketName;
                     item.destBucket = item.destConn.bucketName;
                     item.job = jobsObj[item.id];

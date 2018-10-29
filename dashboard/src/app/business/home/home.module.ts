@@ -34,7 +34,8 @@ let routers = [{
     InputTextareaModule, 
     DropdownModule,
     DataTableModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    DialogModule
   ],
   providers: [HttpService, ProfileService,ConfirmationService]
 })

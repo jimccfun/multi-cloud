@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router,ActivatedRoute} from '@angular/router';
-import { I18NService, Utils ,HttpService} from 'app/shared/api';
+import { I18NService, Utils ,HttpService,Consts} from 'app/shared/api';
 import { BucketService} from '../buckets.service';
 // import { FileUploader } from 'ng2-file-upload';
 import { MenuItem ,ConfirmationService} from '../../../components/common/api';
 import { HttpClient } from '@angular/common/http';
 import {XHRBackend, RequestOptions, Request, RequestOptionsArgs, Response, Headers, BaseRequestOptions } from '@angular/http';
 import { FormControl, FormGroup, FormBuilder, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+import { BaseRequestOptionsArgs } from 'app/shared/service/api';
 declare let X2JS:any;
 @Component({
   selector: 'bucket-detail',
@@ -45,7 +46,6 @@ export class BucketDetailComponent implements OnInit {
     "profileOption":{ required: "Name is required." },
     "expandSize":{required: "Expand Capacity is required."}
   };
-  BYTES_PER_CHUNK = 1024 * 1024 * 5;
   constructor(
     private ActivatedRoute: ActivatedRoute,
     public I18N:I18NService,
@@ -132,10 +132,10 @@ export class BucketDetailComponent implements OnInit {
     let start = 0;
     let end;
     let index = 0;
-    totalSlices = Math.ceil(this.selectFile['size'] / this.BYTES_PER_CHUNK);
+    totalSlices = Math.ceil(this.selectFile['size'] / Consts.BYTES_PER_CHUNK);
     let proArr = [];
     while(start < this.selectFile['size']) {
-      end = start + this.BYTES_PER_CHUNK;
+      end = start + Consts.BYTES_PER_CHUNK;
       if(end > this.selectFile['size']) {
         end = this.selectFile['size'];
       }
@@ -146,8 +146,21 @@ export class BucketDetailComponent implements OnInit {
         // thrid step put all
         Promise.all(proArr).then(result=>{
           console.log(result);
-          this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name+'?uploadId='+uploadId,options).subscribe((res) => {
-            this.uploadDisplay = false;
+          let x2js = new X2JS();
+          let partArr = [];
+          result.forEach(item =>{
+            let jsonObj = x2js.xml_str2json(item['_body']);
+            partArr.push(jsonObj);
+          });
+          let marltipart = '<CompleteMultipartUpload>';
+          partArr.forEach(item =>{
+            marltipart +=`<Part>
+                  <PartNumber>${item.UploadPartResult.PartNumber}</PartNumber>
+                 <ETag>${item.UploadPartResult.ETag}</ETag>
+                 </Part>`
+          });
+          marltipart += '</CompleteMultipartUpload>';
+          this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name+'?uploadId='+uploadId,marltipart,options).subscribe((res) => {
             this.getAlldir();
           });
         });
@@ -157,11 +170,10 @@ export class BucketDetailComponent implements OnInit {
   uploadload(blob, index, start, end,uploadId,options) {
     let fd;
     let chunk;  
-    let sliceIndex=blob.name.split('.')[0]+index+'.'+blob.name.split('.')[1];
     chunk =blob.slice(start,end);
     fd = new FormData();
-    fd.append("UpgradeFileName", chunk, sliceIndex);
-    return this.BucketService.uploadFile(`${this.bucketId}/${sliceIndex}?partNumber=${index+1}&uploadId=${uploadId}`,fd,options).toPromise();
+    fd.append("UpgradeFileName", chunk);
+    return this.BucketService.uploadFile(`${this.bucketId}/${blob.name}?partNumber=${index+1}&uploadId=${uploadId}`,fd,options).toPromise();
   }
   uploadFile() {
     let headers = new Headers();
@@ -169,8 +181,11 @@ export class BucketDetailComponent implements OnInit {
     if(this.selectBackend){
       headers.append('x-amz-storage-class',this.selectBackend);
     }
-    let options = new RequestOptions({ headers: headers });
-    if(this.selectFile['size'] > this.BYTES_PER_CHUNK){
+    let options = {
+      headers: headers,
+      timeout:Consts.TIMEOUT
+    };
+    if(this.selectFile['size'] > Consts.BYTES_PER_CHUNK){
       //first step get uploadId
       this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name + "?uploads",options).subscribe((res) => {
         let str = res['_body'];
@@ -178,6 +193,7 @@ export class BucketDetailComponent implements OnInit {
         let jsonObj = x2js.xml_str2json(str);
         let uploadId = jsonObj.InitiateMultipartUploadResult.UploadId;
         // second step part upload
+        this.uploadDisplay = false;
         this.uploadPart(uploadId,options);
       });
       return;
