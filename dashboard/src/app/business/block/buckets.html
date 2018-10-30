@@ -114,26 +114,25 @@
             <form [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="migrationForm">
                 <div style="margin-bottom: 18px;"><span style="font-size: 16px;font-style: normal">Basic Information</span></div>
                 <form-item label="Plan Name" >
-                    <input type="text" name="migrationName" pInputText style="width: 150px;" formControlName="migrationName" />
+                    <input type="text" name="migrationName" pInputText style="width: 150px;" formControlName="name" />
                 </form-item>
                 <form-item label="Source Bucket" >
                     <input type="text" name="" disabled="true" pInputText style="width: 150px;" value="{{selectedBucket.name}}" />
-                    <!-- <p-dropdown [style]="{'min-width':'220px'}" disabled="true"  [options]="bucketOption" name="srcBucket" formControlName="srcBucket"  ></p-dropdown> -->
                 </form-item>
                 <form-item label="Destination Bucket" >
                     <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" [options]="availbucketOption" name="destBucket" formControlName="destBucket"  ></p-dropdown>
                 </form-item>
                 <form-item label="Excuting Time" >
-                    <p-calendar [disabled]="selectTime" [showTime]="true" name="excutingTime" formControlName="excutingTime" ></p-calendar>
-                    <p-checkbox (onChange)="showcalendar()" name="excuteTime"  value="true" binary="true" label="Immediately" formControlName="execute"></p-checkbox>
+                    <p-calendar [disabled]="selectTime" [showTime]="true" name="excutingTime" formControlName="excuteTime" ></p-calendar>
+                    <p-checkbox (onChange)="showcalendar()" name="excuteTime"  value="true" binary="true" label="Immediately" formControlName="excute"></p-checkbox>
                 </form-item>
-                <div style="margin-bottom: 10px;"><span style="font-size: 16px;font-style: normal">Rule</span></div>
-                <span style="display:inline-block;margin-bottom: 10px;color: rgb(136, 147, 166);">Without rules, all of them are migrated, otherwise only migrate objects with this rule.</span>
-                <textarea [rows]="2" [cols]="78" pInputTextarea name="rule" formControlName="rule"></textarea>
-                <div style="margin:10px 0">
+                <div *ngIf="false" style="margin-bottom: 10px;"><span style="font-size: 16px;font-style: normal">Rule</span></div>
+                <span *ngIf="false" style="display:inline-block;margin-bottom: 10px;color: rgb(136, 147, 166);">Without rules, all of them are migrated, otherwise only migrate objects with this rule.</span>
+                <textarea *ngIf="false" [rows]="2" [cols]="78" pInputTextarea name="rule" formControlName="rule"></textarea>
+                <div *ngIf="false" style="margin:10px 0">
                     <p-checkbox (onChange)="showDetail()" name="analysis"  formControlName="anaShow" value="true" label="Config Data analysis"></p-checkbox>
                 </div>
-                <form *ngIf="showAnalysis" [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="analysisForm"  >
+                <form *ngIf="false" [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="analysisForm"  >
                     <form-item label="Analysis Cluster" >
                         <input type="text" name="analysisCluster" pInputText formControlName="analysisCluster"  />
                     </form-item>
@@ -150,7 +149,7 @@
                     <textarea [rows]="2" [cols]="78" pInputTextarea name="anaParam" formControlName="anaparam"></textarea>
                 </form>
                 <div style="margin-top:10px;">
-                    <p-checkbox name="deleteSrcObject"  value="true" formControlName="deleteSrcObject"  label="Delete the source objects after the migration is completed."></p-checkbox>
+                    <p-checkbox binary="true" name="deleteSrcObject"  value="true" formControlName="deleteSrcObject"  label="Delete the source objects after the migration is completed."></p-checkbox>
                 </div>
             </form>
             <p-footer>

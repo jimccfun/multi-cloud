@@ -86,13 +86,12 @@ export class BucketsComponent implements OnInit{
             "name":[""]
         });
         this.migrationForm = this.fb.group({
-            "migrationName":[""],
-            "destBucket":[""],
-            "excutingTime":[""],
-            "rule":[""],
-            "deleteSrcObject":[""],
-            "execute": ["true"],
-            "anaShow":[""]
+            "name": ['',{validators:[Validators.required], updateOn:'change'}],
+            "destBucket":['',{validators:[Validators.required], updateOn:'change'}],
+            "rule":[''],
+            "deleteSrcObject":[false],
+            "excuteTime":[false],
+            "excute":[true]
         });
         this.analysisForm = this.fb.group({
             "analysisCluster":[""],
@@ -162,30 +161,21 @@ export class BucketsComponent implements OnInit{
         this.availbucketOption = [];
         this.createMigrateShow=true;
         this.selectedBucket = bucket;
-        this.migrationForm.reset();
-        this.migrationForm.controls['execute'].setValue("true");
-        this.analysisForm.reset();
+        this.migrationForm.reset(
+            {
+            'name':'',
+            "deleteSrcObject":false,
+            "excuteTime":false,
+            "excute":true
+            }
+        );
         this.selectTime = true;
-        this.showAnalysis = false;
         this.bucketOption.forEach((value,index)=>{
-            if(this.backendMap.get(value.label) !== this.backendMap.get(bucket.name)){
+            if(Consts.BUCKET_BACKND.get(value.label) !== Consts.BUCKET_BACKND.get(bucket.name)){
                 this.availbucketOption.push({
                     label:value.label,
                     value:value.value
                 });
-            }
-        });
-        this.engineOption = [];
-        this.http.get("v1beta/{project_id}/file?bucket_id="+bucket.id).subscribe((res)=>{
-            let allFile = res.json();
-            for(let item of allFile){
-                if(item.name == "driver_behavior.jar"){
-                    this.engineOption = [{
-                        label:"driver_behavior.jar",
-                        value:"driver_behavior.jar"
-                    }];
-                    break;
-                }
             }
         });
     }
@@ -253,32 +243,53 @@ export class BucketsComponent implements OnInit{
         });
     }
     createMigration(){
+        if(!this.migrationForm.valid){
+            for(let i in this.migrationForm.controls){
+                this.migrationForm.controls[i].markAsTouched();
+            }
+            return;
+        }
         let param = {
-            "name": this.migrationForm.value.migrationName,
-            "srcBucket": this.selectedBucket.name,
-            "destBucket": this.migrationForm.value.destBucket,
-            "rule": this.migrationForm.value.rule ? this.migrationForm.value.rule:"--",
-            "deleteSrcObject": this.migrationForm.value.deleteSrcObject && this.migrationForm.value.deleteSrcObject.length !== 0,
+            "name": this.migrationForm.value.name,
+            "description": "for test",
+            "type": "migration",
+            "sourceConn": {
+                "storType": "opensds-obj",
+                "bucketName": this.selectedBucket.name,
+            },
+            "destConn": {
+                "storType": "opensds-obj",
+                "bucketName": this.migrationForm.value.destBucket
+            },
+            "filter": {},
+            "remainSource": !this.migrationForm.value.deleteSrcObject
         }
-        if(!this.selectTime){
-            let param2 = {
-                "excutingTime":this.migrationForm.value.excutingTime ,
-            }
-            Object.assign(param,param2);
-        }
-        if(this.showAnalysis){
-            let param3 = {
-                "analysisCluster": this.analysisForm.value.analysisCluster,
-                "ak": this.analysisForm.value.ak,
-                "sk": this.analysisForm.value.sk,
-                "jar":this.analysisForm.value.jar,
-                "anaparam":this.analysisForm.value.anaparam,
-            }
-            Object.assign(param,param3);
-        }
-        this.MigrationService.createMigration(param).subscribe((res) => {
-            this.createMigrateShow = false;
-        });
+        if(this.migrationForm.value.excute){
+            this.MigrationService.createMigration(param).subscribe((res) => {
+                this.createMigrateShow = false;
+                let planId = res.json().plan.id;
+                this.http.post(`v1/{project_id}/plans/${planId}/run`,{}).subscribe((res)=>{});
+            });
+        }else{
+            let date = new Date(this.migrationForm.value.excuteTime);
+            let tigger = `00 ${date.getMinutes()} ${date.getHours()} ${date.getDate()} ${date.getMonth()} ${date.getDay()}`;
+            let policy={
+                "name":"cron test",
+                "tenant":"all",
+                "description":"cron test function",
+                "schedule": {
+                    "type":"cron",
+                    "tiggerProperties":tigger
+                }
+            };
+            this.http.post('v1/{project_id}/policies',policy).subscribe((res)=>{
+                param['policyId'] = res.json().policy.id;
+                param['policyEnabled'] = true;
+                this.MigrationService.createMigration(param).subscribe((res) => {
+                    this.createMigrateShow = false;
+                });
+            })
+        }    
     }
     getBackendsByTypeId() {
         this.backendsOption = [];

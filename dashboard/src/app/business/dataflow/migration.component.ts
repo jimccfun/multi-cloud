@@ -182,7 +182,7 @@ export class MigrationListComponent implements OnInit {
                 "description":"cron test function",
                 "schedule": {
                     "type":"cron",
-                    "tiggerProperties":"22 22 22 22 11 5"
+                    "tiggerProperties":tigger
                 }
             };
             this.http.post('v1/{project_id}/policies',policy).subscribe((res)=>{

@@ -313,7 +313,9 @@ export class HomeComponent implements OnInit {
             "security": this.modifyBackendForm.value.sk,
             "access": this.modifyBackendForm.value.ak
         }
-        this.http.put(`v1/{project_id}/backends/${this.selectedBackend.id}`,param).subscribe((res)=>{});
+        this.http.put(`v1/{project_id}/backends/${this.selectedBackend.id}`,param).subscribe((res)=>{
+            this.modifyBackendshow = false;
+        });
     }
     getProfiles() {
         this.profileService.getProfiles().subscribe((res) => {
