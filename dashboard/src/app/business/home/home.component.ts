@@ -3,7 +3,7 @@ import { ParamStorService } from 'app/shared/api';
 import { ProfileService } from 'app/business/profile/profile.service';
 import { Observable } from "rxjs/Rx";
 import { I18NService ,HttpService,Consts} from 'app/shared/api';
-import { ReactiveFormsModule, FormsModule,FormControl, FormGroup, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule,FormControl, FormGroup, FormBuilder,Validators } from '@angular/forms';
 import { MenuItem ,ConfirmationService,ConfirmDialogModule} from '../../components/common/api';
 import { Router } from '@angular/router';
 
@@ -70,7 +70,15 @@ export class HomeComponent implements OnInit {
     ) { 
         this.cloud_type = Consts.CLOUD_TYPE;
     }
-
+    errorMessage = {
+        "name": { required: "Name is required." },
+        "type": { required: "Type is required." },
+        "region":{ required: "Region is required." },
+        "endpoint":{ required: "Endpoint is required." },
+        "bucket":{required: "Bucket is required."},
+        "ak":{required: "Access Key is required."},
+        "sk":{required: "Secret Key is required."}
+    };
     ngOnInit() {
         if(this.paramStor.CURRENT_USER().split("|")[0] == "admin"){
             this.showAdminStatis = true;
@@ -82,17 +90,17 @@ export class HomeComponent implements OnInit {
             this.getTenantCountData();
         }
         this.backendForm = this.fb.group({
-            "name":[],
-            "type":[],
-            "region":[],
-            "endpoint":[],
-            "bucket":[],
-            "ak":[],
-            "sk":[],
+            "name":['', Validators.required],
+            "type":['',{validators:[Validators.required]}],
+            "region":['',{validators:[Validators.required], updateOn:'change'}],
+            "endpoint":['',{validators:[Validators.required], updateOn:'change'}],
+            "bucket":['',{validators:[Validators.required], updateOn:'change'}],
+            "ak":['',{validators:[Validators.required], updateOn:'change'}],
+            "sk":['',{validators:[Validators.required], updateOn:'change'}],
         });
         this.modifyBackendForm = this.fb.group({
-            "ak":[],
-            "sk":[],
+            "ak":['',{validators:[Validators.required], updateOn:'change'}],
+            "sk":['',{validators:[Validators.required], updateOn:'change'}],
         });
         this.items = [
             {
@@ -309,6 +317,12 @@ export class HomeComponent implements OnInit {
         );
     }
     modifyBackend(){
+        if(!this.modifyBackendForm.valid){
+            for(let i in this.modifyBackendForm.controls){
+                this.modifyBackendForm.controls[i].markAsTouched();
+            }
+            return;
+        }
         let param = {
             "security": this.modifyBackendForm.value.sk,
             "access": this.modifyBackendForm.value.ak
@@ -516,6 +530,12 @@ export class HomeComponent implements OnInit {
     }
     // // 创建backend
     createBackend(){
+        if(!this.backendForm.valid){
+            for(let i in this.backendForm.controls){
+                this.backendForm.controls[i].markAsTouched();
+            }
+            return;
+        }
         let param = {
             "name": this.backendForm.value.name,
             "type": this.backendForm.value.type,

@@ -82,7 +82,7 @@
         </div>
     </div>
     <p-dialog  header="Modify" [(visible)]="modifyBackendshow" [width]="600" modal="modal">
-        <form [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="modifyBackendForm" >
+        <form [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="modifyBackendForm" [errorMessage]="errorMessage">
             <form-item label="Access Key" [required]="true">
                 <input type="text" pInputText formControlName="ak" />
             </form-item>
@@ -144,7 +144,7 @@
         </div>
 </div>
 <p-home-dialog header="Register Storage Backend" [(visible)]="showRgister" [width]="510" [height]="790" modal="modal" [style]="{'opacity':'0.95','right':'46px','top':'80px','background':'rgb(44,63,97)'}" >
-        <form [grid]="{label: 'ui-g-5', content:'ui-g-20'}" [formGroup]="backendForm">
+        <form [grid]="{label: 'ui-g-5', content:'ui-g-20'}" [formGroup]="backendForm" [errorMessage]="errorMessage">
             <form-item label="Name" >
                 <input id="name" type="text" name="name" formControlName="name"  pInputText />
             </form-item>
