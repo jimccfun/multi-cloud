@@ -38,12 +38,12 @@
             <div style="padding:20px 0">
                 <p-checkbox (onChange)="showDetail()" name="specify"  value="true" [(ngModel)]="selectedSpecify" label="Specify the location of data storage. If not specified, store it to default backend."></p-checkbox>
             </div>
-            <form *ngIf="showBackend" [grid]="{label: 'ui-g-3', content:'ui-g-20'}">
+            <form *ngIf="showBackend" [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="uploadForm" [errorMessage]="errorMessage">
                 <form-item label="type" [required]="true">
-                    <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" [options]="allTypes" name='selectType' [(ngModel)]='selectType' (onChange)="getBackendsByTypeId()"></p-dropdown>
+                    <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" [options]="allTypes" name='selectType' formControlName="backend_type" (onChange)="getBackendsByTypeId()"></p-dropdown>
                 </form-item>
                 <form-item label="Backend" [required]="true">
-                    <p-dropdown [style]="{'min-width':'220px'}" [options]="backendsOption" name='selectBackend' [(ngModel)]='selectBackend'></p-dropdown>
+                    <p-dropdown [style]="{'min-width':'220px'}" [options]="backendsOption" name='selectBackend' formControlName="backend"></p-dropdown>
                 </form-item>
         
             </form>

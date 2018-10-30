@@ -34,18 +34,15 @@ export class BucketDetailComponent implements OnInit {
   showBackend = false;
   allTypes = [];
   backendsOption = [];
-  selectType:any;
   selectBackend:any;
   bucket;
   showCreateFolder = false;
   createFolderForm:FormGroup;
   errorMessage = {
-    "name": { required: "Name is required." },
-    "description": { maxlength: "Max. length is 200." },
-    "repName":{ required: "Name is required." },
-    "profileOption":{ required: "Name is required." },
-    "expandSize":{required: "Expand Capacity is required."}
+    "backend_type": { required: "Type is required." },
+    "backend": { required: "Backend is required." }
   };
+  uploadForm :FormGroup;
   constructor(
     private ActivatedRoute: ActivatedRoute,
     public I18N:I18NService,
@@ -58,6 +55,10 @@ export class BucketDetailComponent implements OnInit {
   {
     this.createFolderForm = this.fb.group({
       "name": ['', Validators.required]
+    });
+    this.uploadForm = this.fb.group({
+        "backend":["",{validators:[Validators.required], updateOn:'change'}],
+        "backend_type":["",{validators:[Validators.required], updateOn:'change'}],
     });
   }
 
@@ -103,7 +104,7 @@ export class BucketDetailComponent implements OnInit {
   }
   getBackendsByTypeId() {
     this.backendsOption = [];
-    this.BucketService.getBackendsByTypeId(this.selectType).subscribe((res) => {
+    this.BucketService.getBackendsByTypeId(this.uploadForm.value.backend_type).subscribe((res) => {
         let backends = res.json().backends ? res.json().backends :[];
         backends.forEach(element => {
             this.backendsOption.push({
@@ -178,8 +179,14 @@ export class BucketDetailComponent implements OnInit {
   uploadFile() {
     let headers = new Headers();
     headers.append('Content-Type', 'application/xml');
-    if(this.selectBackend){
-      headers.append('x-amz-storage-class',this.selectBackend);
+    if(this.showBackend){
+      if(!this.uploadForm.valid){
+          for(let i in this.uploadForm.controls){
+              this.uploadForm.controls[i].markAsTouched();
+          }
+          return;
+      }
+      headers.append('x-amz-storage-class',this.uploadForm.value.backend);
     }
     let options = {
       headers: headers,

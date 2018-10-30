@@ -46,7 +46,7 @@ export class BucketsComponent implements OnInit{
     selectedBuckets=[];
     allBuckets = [];
     createBucketForm:FormGroup;
-    errorMessage = [];
+    errorMessage :Object;
     createBucketDisplay=false;
     showLife = false;
     backendsOption = [];
@@ -80,10 +80,16 @@ export class BucketsComponent implements OnInit{
         private MigrationService:MigrationService,
         private http:Http,
     ){
+        this.errorMessage = {
+            "name": { required: "Name is required." },
+            "backend_type": { required: "Type is required." },
+            "backend":{ required: "Backend is required." },
+            "destBucket":{ required: "Destination Bucket is required." },
+        };
         this.createBucketForm = this.fb.group({
-            "backend":[""],
-            "backend_type":[""],
-            "name":[""]
+            "backend":["",{validators:[Validators.required], updateOn:'change'}],
+            "backend_type":["",{validators:[Validators.required], updateOn:'change'}],
+            "name":["",{validators:[Validators.required], updateOn:'change'}]
         });
         this.migrationForm = this.fb.group({
             "name": ['',{validators:[Validators.required], updateOn:'change'}],
@@ -103,18 +109,7 @@ export class BucketsComponent implements OnInit{
     }
 
     ngOnInit() {
-        this.allBuckets = [
-            {
-                name:"test",
-                backend:"OS_ch_beijing_eastern",
-                created:"2018-02-25 07:30:12",
-            },
-            {
-                name:"bucket_s3",
-                backend:"OS_ch_beijing_western",
-                created:"2018-02-25 07:30:12",
-            }
-        ];
+        this.allBuckets = [];
         this.lifeOperation =[{
             label:'Migration',
             value:'Migration'
@@ -131,25 +126,8 @@ export class BucketsComponent implements OnInit{
             label:'Migration',
             value:'Migration'
         }];
-        this.allBackends = [{
-            label:'AWS S3',
-            value:'AWS S3'
-        },
-        {
-            label:'MicrosoftAzure Blob Storage',
-            value:'MicrosoftAzure Blob Storage'
-        },
-        {
-            label:'Huawei HWC',
-            value:'Huawei HWC'
-        },
-        {
-            label:'Huawei FusionCloud',
-            value:'Huawei FusionCloud'
-        }
-        ];
+        this.allBackends = [];
         this.getBuckets();
-        // this.getBackends();
     }
     showcalendar(){
         this.selectTime = !this.selectTime;
@@ -199,7 +177,6 @@ export class BucketsComponent implements OnInit{
                     label:item.name,
                     value:item.name
                 });
-                //this.backendMap.set(item.name,item.backend);
             });
             this.initBucket2backendAnd2Type();
         });
@@ -319,6 +296,12 @@ export class BucketsComponent implements OnInit{
     }
 
     creatBucket(){
+        if(!this.createBucketForm.valid){
+            for(let i in this.createBucketForm.controls){
+                this.createBucketForm.controls[i].markAsTouched();
+            }
+            return;
+        }
         let param = {
             name:this.createBucketForm.value.name,
             backend_type:this.createBucketForm.value.backend_type,

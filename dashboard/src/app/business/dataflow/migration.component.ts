@@ -45,6 +45,7 @@ export class MigrationListComponent implements OnInit {
     rule = "";
     excutingTime;
     job: any;
+    errorMessage:Object;
     constructor(
         public I18N: I18NService,
         private router: Router,
@@ -54,6 +55,11 @@ export class MigrationListComponent implements OnInit {
         private BucketService:BucketService,
         private http: Http
     ) {
+        this.errorMessage = {
+            "name": { required: "Name is required." },
+            "srcBucket": { required: "Source Bucket is required." },
+            "destBucket":{ required: "Destination Bucket is required." },
+        };
         this.createMigrationForm = this.fb.group({
             "name": ['',{validators:[Validators.required], updateOn:'change'}],
             "srcBucket": ['',{validators:[Validators.required], updateOn:'change'}],

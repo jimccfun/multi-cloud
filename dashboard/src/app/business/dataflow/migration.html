@@ -38,7 +38,7 @@
     </ng-template>
 </p-dataTable>
 <p-dialog styleClass="create-migrate-dialog" header="Migrate" [(visible)]="createMigrateShow" [width]="650" modal="modal">
-    <form [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="createMigrationForm">
+    <form [grid]="{label: 'ui-g-3', content:'ui-g-20'}" [formGroup]="createMigrationForm" [errorMessage]="errorMessage">
         <div style="margin-bottom: 18px;"><span style="font-size: 16px;font-style: normal">Basic Information</span></div>
         <form-item label="Plan Name" >
             <input type="text" name="migrationName" formControlName="name" pInputText style="width: 150px;" />
