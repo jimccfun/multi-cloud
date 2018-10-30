@@ -39,8 +39,8 @@ export class MigrationDetailComponent implements OnInit {
 
   ngOnInit() {
     if(this.job){
-      this.migrationInstance.excutingTime = new Date(this.job.createTime * 1000).toDateString();
-      this.migrationInstance.endTime = this.job.endTime > 0 ? new Date(this.job.endTime * 1000).toDateString() :'--';
+      this.migrationInstance.excutingTime = Utils.formatDate(this.job.createTime * 1000);
+      this.migrationInstance.endTime = this.job.endTime > 0 ? Utils.formatDate(this.job.endTime * 1000) : "--";
       this.migrationInstance.totalsize = Utils.getDisplayCapacity(this.job.totalCapacity,2,'KB');
       this.migrationInstance.objectnum = this.job.totalCount ? this.job.totalCount :0;
       this.migrationInstance.srcBucket = this.job.sourceLocation;

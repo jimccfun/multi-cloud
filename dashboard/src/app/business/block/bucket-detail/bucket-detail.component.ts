@@ -87,7 +87,8 @@ export class BucketDetailComponent implements OnInit {
           this.allDir = [alldir];
       }
       this.allDir.forEach(item=>{
-        item.size = Utils.getDisplayCapacity(item.Size,2,'KB')
+        item.size = Utils.getDisplayCapacity(item.Size,2,'KB');
+        item.lastModified = Utils.formatDate(item.LastModified);
       });
     });
   }

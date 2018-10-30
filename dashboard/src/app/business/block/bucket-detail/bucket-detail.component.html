@@ -25,7 +25,7 @@
             <p-column field="ObjectKey" header="{{I18N.keyID['sds_block_volume_name']}}" ></p-column>
             <p-column field="size" header="Size" ></p-column>
             <p-column field="BucketName" header="Location" ></p-column>
-            <p-column field="LastModified" header="Last Modified"></p-column>
+            <p-column field="lastModified" header="Last Modified"></p-column>
             <p-column header="{{I18N.keyID['sds_block_volume_operation']}}" [style]="{'width': '180px'}">
                 <ng-template pTemplate="body" let-file="rowData" let-i="rowIndex">
                     <a (click)="downloadFile(file)" >Download</a>

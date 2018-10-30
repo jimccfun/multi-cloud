@@ -143,4 +143,29 @@ export class Utils {
             prevArr.splice(index,1);
         }
     }
+    /**
+     * 
+     * @param time format time
+     */
+    static formatDate(time){
+        if(!time){
+            return "--";
+        }
+        let date = new Date(time);
+    
+        let year = date.getFullYear(),
+            month = ((date.getMonth() + 1) >= 10) ? (date.getMonth()+ 1) : ("0"+(date.getMonth()+1)),
+            day = (date.getDate() >= 10) ? date.getDate() : ("0"+date.getDate()),
+            hour = (date.getHours() >= 10) ? date.getHours() : ("0"+date.getHours()),
+            min = (date.getMinutes() >= 10) ? date.getMinutes() : ("0"+date.getMinutes()),
+            sec = (date.getSeconds() >= 10) ? date.getSeconds() : ("0"+date.getSeconds());
+        let newTime = year + '-' +
+                month + '-' +
+                day + ' ' +
+                hour + ':' +
+                min + ':' +
+                sec;
+        return newTime;         
+    }
+
 }
