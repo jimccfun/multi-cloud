@@ -324,11 +324,11 @@ export class CreateProfileComponent implements OnInit {
         this.repPolicy = this.fb.group({
             "repType": new FormControl("mirror", Validators.required),
             "repMode": new FormControl(this.replicationModeOptions[0].value, Validators.required),
-            "repPeriod": new FormControl(60, Validators.required),
+            "repPeriod": new FormControl('60', Validators.required),
             "repBandwidth": new FormControl(10, Validators.required),
             "repRGO": new FormControl(this.replicationRGOOptions[0].value, Validators.required),
             "repRTO": new FormControl(this.replicationRTOOptions[0].value, Validators.required),
-            "repRPO": new FormControl(0, Validators.required),
+            "repRPO": new FormControl('0', Validators.required),
             "repCons": new FormControl([])
         });
         this.snapPolicy = this.fb.group({
@@ -378,22 +378,22 @@ export class CreateProfileComponent implements OnInit {
                 }
                 return;
             }
-            this.param.extras[":provisionPolicy"]= {
-                "ioConnectivityLoS": {
-                    "maxIOPS": this.qosPolicy.value.maxIOPS,
-                    "maxBWS": this.qosPolicy.value.maxBWS,
+            this.param["provisioningProperties"]= {
+                "ioConnectivity": {
+                    "maxIOPS": Number(this.qosPolicy.value.maxIOPS),
+                    "maxBWS": Number(this.qosPolicy.value.maxBWS),
                     "accessProtocol": value.protocol
                 }, 
-                "dataStorageLoS": {
+                "dataStorage": {
                     "provisioningPolicy": value.storageType
                 }
             }
         }else{
-            this.param.extras[":provisionPolicy"]= {
-                "ioConnectivityLoS": {
+            this.param["provisioningProperties"]= {
+                "ioConnectivity": {
                     "accessProtocol": value.protocol
                 }, 
-                "dataStorageLoS": {
+                "dataStorage": {
                     "provisioningPolicy": value.storageType
                 }
             }
@@ -406,18 +406,18 @@ export class CreateProfileComponent implements OnInit {
                 return;
             }
             this.param.extras["replicationType"]= "ArrayBased";
-            this.param.extras[":replicationPolicy"]={
-                "dataProtectionLoS": {
-                    "replicaTypes": this.repPolicy.value.repType,
-                    "recoveryGeographicObject": this.repPolicy.value.repRGO,
-                    "recoveryPointObjective": this.repPolicy.value.repRPO,
+            this.param["replicationProperties"]={
+                "dataProtection": {
+                    "replicaType": this.repPolicy.value.repType,
+                    "recoveryGeographicObjective": this.repPolicy.value.repRGO,
+                    "recoveryPointObjectiveTime": this.repPolicy.value.repRPO,
                     "recoveryTimeObjective": this.repPolicy.value.repRTO,
                 },
                 "replicaInfos": {
                     "replicaUpdateMode": this.repPolicy.value.repMode,
                     "consistencyEnabled": this.repPolicy.value.repCons.length==0 ? false:true,
                     "replicationPeriod": this.repPolicy.value.repPeriod,
-                    "replicationBandwidth": this.repPolicy.value.repBandwidth
+                    "replicationBandwidth": Number(this.repPolicy.value.repBandwidth)
                 }
             }
         }
@@ -431,12 +431,12 @@ export class CreateProfileComponent implements OnInit {
             let reten = this.snapPolicy.value.retentionOptions === "Quantity" ? {
                     "number": this.snapPolicy.value.snapNum,
                 }:{"duration": this.snapPolicy.value.duration}
-            if(this.snapPolicy.value.autoSnapshot){
-                this.param.extras[":snapshotPolicy"]= {
+            if(!this.snapPolicy.value.autoSnapshot){
+                this.param["snapshotProperties"]= {
                     "retention": reten
                 }
             }else{
-                this.param.extras[":snapshotPolicy"]= {
+                this.param["snapshotProperties"]= {
                     "schedule": {
                         "datetime": "1970-01-01T"+this.snapPolicy.value.datetime+":00",
                         "occurrence": this.snapPolicy.value.Schedule //Monthly, Weekly, Daily, Hourly
@@ -444,7 +444,7 @@ export class CreateProfileComponent implements OnInit {
                     "retention": reten
                 }
             };
-            this.param["snapshotProperties"] = {"topology":{"bucket":this.snapPolicy.value.snapshotDestination}};
+            this.param["snapshotProperties"]["topology"] = {"bucket":this.snapPolicy.value.snapshotDestination};
         }
         if (this.customizationItems.length > 0) {
             let arrLength = this.customizationItems.length;
