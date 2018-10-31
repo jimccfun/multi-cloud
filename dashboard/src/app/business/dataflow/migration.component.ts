@@ -90,6 +90,7 @@ export class MigrationListComponent implements OnInit {
         );
         this.createMigrationForm.controls['name'].setValidators([Validators.required,Utils.isExisted(this.allMigrationForCheck)]);
     }
+
     getBuckets() {
         this.bucketOption = [];
         this.BucketService.getBuckets().subscribe((res) => {
@@ -103,13 +104,32 @@ export class MigrationListComponent implements OnInit {
             }else if(Object.prototype.toString.call(buckets) === "[object Object]"){
                 allBuckets = [buckets];
             }
-            allBuckets.forEach(item=>{
-                this.bucketOption.push({
+            if(Consts.BUCKET_BACKND.size > 0 && Consts.BUCKET_TYPE.size > 0 ){
+                allBuckets.forEach(item=>{
+                    this.bucketOption.push({
+                                label:item.Name,
+                                value:item.Name
+                            });
+                });
+                this.getMigrations();
+            }else{
+                this.http.get('v1/{project_id}/backends').subscribe((res)=>{
+                    let backends = res.json().backends ? res.json().backends :[];
+                    let backendsObj = {};
+                    backends.forEach(element => {
+                        backendsObj[element.name]= element.type;
+                    });
+                    allBuckets.forEach(item=>{
+                        Consts.BUCKET_BACKND.set(item.Name,item.LocationConstraint);
+                        Consts.BUCKET_TYPE.set(item.Name,backendsObj[item.LocationConstraint]);
+                        this.bucketOption.push({
                             label:item.Name,
                             value:item.Name
                         });
-            });
-            this.getMigrations();
+                    });
+                    this.getMigrations();
+                });
+            }
         });
     }
     changeSrcBucket(){
