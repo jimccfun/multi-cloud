@@ -69,7 +69,7 @@ export class BucketsComponent implements OnInit{
         id:""
     };
     selectType;
-    engineOption = [];
+    allBucketNameForCheck=[];
     constructor(
         public I18N: I18NService,
         private router: Router,
@@ -81,7 +81,7 @@ export class BucketsComponent implements OnInit{
         private http:Http,
     ){
         this.errorMessage = {
-            "name": { required: "Name is required." },
+            "name": { required: "Name is required.",isExisted:"Name is existing" },
             "backend_type": { required: "Type is required." },
             "backend":{ required: "Backend is required." },
             "destBucket":{ required: "Destination Bucket is required." },
@@ -89,7 +89,7 @@ export class BucketsComponent implements OnInit{
         this.createBucketForm = this.fb.group({
             "backend":["",{validators:[Validators.required], updateOn:'change'}],
             "backend_type":["",{validators:[Validators.required], updateOn:'change'}],
-            "name":["",{validators:[Validators.required], updateOn:'change'}]
+            "name":["",{validators:[Validators.required,Utils.isExisted(this.allBucketNameForCheck)], updateOn:'change'}]
         });
         this.migrationForm = this.fb.group({
             "name": ['',{validators:[Validators.required], updateOn:'change'}],
@@ -160,6 +160,7 @@ export class BucketsComponent implements OnInit{
     getBuckets() {
         this.allBuckets = [];
         this.bucketOption = [];
+        this.allBucketNameForCheck = [];
         this.BucketService.getBuckets().subscribe((res) => {
             let str = res._body;
             let x2js = new X2JS();
@@ -172,6 +173,7 @@ export class BucketsComponent implements OnInit{
             }
             this.allBuckets.forEach(item=>{
                 item.name =item.Name;
+                this.allBucketNameForCheck.push(item.Name);
                 item.createdAt = Utils.formatDate(item.CreationDate);
                 this.bucketOption.push({
                     label:item.name,
@@ -319,6 +321,7 @@ export class BucketsComponent implements OnInit{
     showCreateForm(){
         this.createBucketDisplay = true;
         this.createBucketForm.reset();
+        this.createBucketForm.controls['name'].setValidators([Validators.required,Utils.isExisted(this.allBucketNameForCheck)]);
         this.getTypes();
     }
     deleteBucket(bucket){

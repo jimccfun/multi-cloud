@@ -1,3 +1,4 @@
+import {ValidatorFn, AbstractControl } from '@angular/forms';
 export class Utils {
 
     static capacityUnit = {
@@ -166,6 +167,16 @@ export class Utils {
                 min + ':' +
                 sec;
         return newTime;         
+    }
+
+    /**
+     * check name isExisted
+     * @param param name array 
+     */
+    static isExisted(param:Array<string>) : ValidatorFn{
+        return (c: AbstractControl): {[key: string]: any} | null => {
+            return param.includes(c.value) ? {"isExisted":true} : null;
+        }
     }
 
 }

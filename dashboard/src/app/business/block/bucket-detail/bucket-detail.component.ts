@@ -223,7 +223,7 @@ export class BucketDetailComponent implements OnInit {
         let URL = window.URL
         let objectUrl = URL.createObjectURL(blob)
         if (file.ObjectKey) {
-          var a = document.createElement('a')
+          let a = document.createElement('a')
           a.href = objectUrl
           a.download = file.ObjectKey
           document.body.appendChild(a)

@@ -12,7 +12,7 @@ import { BucketService } from './../block/buckets.service';
 import { Http } from '@angular/http';
 import { ReactiveFormsModule, FormsModule} from '@angular/forms';
 declare let X2JS:any;
-let _ = require("underscore");
+
 @Component({
     selector: 'migration-list',
     templateUrl: 'migration.html',
@@ -46,6 +46,7 @@ export class MigrationListComponent implements OnInit {
     excutingTime;
     job: any;
     errorMessage:Object;
+    allMigrationForCheck=[];
     constructor(
         public I18N: I18NService,
         private router: Router,
@@ -56,12 +57,12 @@ export class MigrationListComponent implements OnInit {
         private http: Http
     ) {
         this.errorMessage = {
-            "name": { required: "Name is required." },
+            "name": { required: "Name is required.",isExisted:"Name is existing" },
             "srcBucket": { required: "Source Bucket is required." },
             "destBucket":{ required: "Destination Bucket is required." },
         };
         this.createMigrationForm = this.fb.group({
-            "name": ['',{validators:[Validators.required], updateOn:'change'}],
+            "name": ['',{validators:[Validators.required,Utils.isExisted(this.allMigrationForCheck)], updateOn:'change'}],
             "srcBucket": ['',{validators:[Validators.required], updateOn:'change'}],
             "destBucket":['',{validators:[Validators.required], updateOn:'change'}],
             "rule":[''],
@@ -87,6 +88,7 @@ export class MigrationListComponent implements OnInit {
             "excute":true
             }
         );
+        this.createMigrationForm.controls['name'].setValidators([Validators.required,Utils.isExisted(this.allMigrationForCheck)]);
     }
     getBuckets() {
         this.bucketOption = [];
@@ -126,6 +128,7 @@ export class MigrationListComponent implements OnInit {
 
     getMigrations() {
         this.allMigrations = [];
+        this.allMigrationForCheck = [];
         this.MigrationService.getMigrations().subscribe((res) => {
             this.changeNumber.emit(true);
             let AllMigrations = res.json().plans ? res.json().plans :[];
@@ -142,6 +145,7 @@ export class MigrationListComponent implements OnInit {
                     item.destBucket = item.destConn.bucketName;
                     item.job = jobsObj[item.id];
                     item.status = jobsObj[item.id] ? jobsObj[item.id].status : 'waiting';
+                    this.allMigrationForCheck.push(item.name);
                 });
                 this.allMigrations = AllMigrations;
             });

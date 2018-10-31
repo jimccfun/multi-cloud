@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewContainerRef, ViewChild, Directive, ElementRef, HostBinding, HostListener } from '@angular/core';
-import { ParamStorService } from 'app/shared/api';
+import { ParamStorService, Utils } from 'app/shared/api';
 import { ProfileService } from 'app/business/profile/profile.service';
 import { Observable } from "rxjs/Rx";
 import { I18NService ,HttpService,Consts} from 'app/shared/api';
-import { ReactiveFormsModule, FormsModule,FormControl, FormGroup, FormBuilder,Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule,FormControl, FormGroup, FormBuilder,Validators,ValidatorFn, AbstractControl } from '@angular/forms';
 import { MenuItem ,ConfirmationService,ConfirmDialogModule} from '../../components/common/api';
 import { Router } from '@angular/router';
 
@@ -49,6 +49,7 @@ export class HomeComponent implements OnInit {
     modifyBackendForm:FormGroup;
     selectedBackend:any;
     cloud_type = [];
+    allBackendNameForCheck=[];
 
     @ViewChild("path") path: ElementRef;
     @ViewChild("cloud_aws") c_AWS: ElementRef;
@@ -71,7 +72,7 @@ export class HomeComponent implements OnInit {
         this.cloud_type = Consts.CLOUD_TYPE;
     }
     errorMessage = {
-        "name": { required: "Name is required." },
+        "name": { required: "Name is required." ,isExisted:"Name is existing"},
         "type": { required: "Type is required." },
         "region":{ required: "Region is required." },
         "endpoint":{ required: "Endpoint is required." },
@@ -90,7 +91,7 @@ export class HomeComponent implements OnInit {
             this.getTenantCountData();
         }
         this.backendForm = this.fb.group({
-            "name":['', Validators.required],
+            "name":['', {validators:[Validators.required,Utils.isExisted(this.allBackendNameForCheck)]}],
             "type":['',{validators:[Validators.required]}],
             "region":['',{validators:[Validators.required], updateOn:'change'}],
             "endpoint":['',{validators:[Validators.required], updateOn:'change'}],
@@ -274,11 +275,14 @@ export class HomeComponent implements OnInit {
             });
         });
     }
+
     initBackendsAndNum(backends){
         let backendArr = Array.from(Consts.BUCKET_BACKND.values());
+        this.allBackendNameForCheck = [];
         backends.forEach(element => {
             element.typeName = element.type;
             element.canDelete = backendArr.includes(element.name);
+            this.allBackendNameForCheck.push(element.name);
         });
         let result=backends.reduce(function(initArray,item){
             let index=item.type;
@@ -294,6 +298,7 @@ export class HomeComponent implements OnInit {
         this.allBackends_count.huaweipri = this.Allbackends[this.cloud_type[1]] ? this.Allbackends[Consts.CLOUD_TYPE[1]].length :0;
         this.allBackends_count.huaweipub = this.Allbackends[this.cloud_type[2]] ? this.Allbackends[Consts.CLOUD_TYPE[2]].length :0;
     }
+
     getType(){
         let url = 'v1/{project_id}/types';
         this.http.get(url).subscribe((res)=>{
@@ -559,5 +564,6 @@ export class HomeComponent implements OnInit {
     showRegister(){
         this.showRgister = true;
         this.backendForm.reset();
+        this.backendForm.controls['name'].setValidators([Validators.required,Utils.isExisted(this.allBackendNameForCheck)]);
     }
 }
