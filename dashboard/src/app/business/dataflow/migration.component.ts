@@ -67,7 +67,7 @@ export class MigrationListComponent implements OnInit {
             "destBucket":['',{validators:[Validators.required], updateOn:'change'}],
             "rule":[''],
             "deleteSrcObject":[false],
-            "excuteTime":[false],
+            "excuteTime":[new Date()],
             "excute":[true]
         });
     }
@@ -84,7 +84,7 @@ export class MigrationListComponent implements OnInit {
             {
             'name':'',
             "deleteSrcObject":false,
-            "excuteTime":false,
+            "excuteTime":new Date(),
             "excute":true
             }
         );

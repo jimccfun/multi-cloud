@@ -96,7 +96,7 @@ export class BucketsComponent implements OnInit{
             "destBucket":['',{validators:[Validators.required], updateOn:'change'}],
             "rule":[''],
             "deleteSrcObject":[false],
-            "excuteTime":[false],
+            "excuteTime":[new Date()],
             "excute":[true]
         });
         this.analysisForm = this.fb.group({
@@ -143,7 +143,7 @@ export class BucketsComponent implements OnInit{
             {
             'name':'',
             "deleteSrcObject":false,
-            "excuteTime":false,
+            "excuteTime":new Date(),
             "excute":true
             }
         );
