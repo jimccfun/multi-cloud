@@ -136,6 +136,7 @@ export class BucketDetailComponent implements OnInit {
     this.uploadDisplay = true;
     this.showBackend = false;
     this.uploadForm.reset();
+    this.selectedSpecify = [];
     this.files = '';
     this.selectFile = '';
   }

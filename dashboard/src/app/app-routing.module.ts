@@ -4,7 +4,6 @@ import { Routes, RouterModule } from '@angular/router';
 const routes: Routes = [
     {path: '', redirectTo: '/home', pathMatch: 'full'},
     {path: 'home', loadChildren: './business/home/home.module#HomeModule'},
-   // {path: 'service', loadChildren: './business/service/service.module#ServiceModule'},
     {path: 'block', loadChildren: './business/block/block.module#BlockModule'},
     {path: 'createVolume', loadChildren: './business/block/create-volume/create-volume.module#CreateVolumeModule'},
     {path: 'volumeDetails/:volumeId', loadChildren: './business/block/volume-detail/volume-detail.module#VolumeDetailModule'},

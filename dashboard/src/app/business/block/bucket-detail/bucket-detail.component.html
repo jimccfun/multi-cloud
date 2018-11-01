@@ -55,7 +55,7 @@
                     <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" [options]="allTypes" name='selectType' formControlName="backend_type" (onChange)="getBackendsByTypeId()"></p-dropdown>
                 </form-item>
                 <form-item label="Backend" [required]="true">
-                    <p-dropdown [style]="{'min-width':'220px'}" [options]="backendsOption" name='selectBackend' formControlName="backend"></p-dropdown>
+                    <p-dropdown [style]="{'min-width':'220px'}" placeholder="Please select" [options]="backendsOption" name='selectBackend' formControlName="backend"></p-dropdown>
                 </form-item>
         
             </form>
