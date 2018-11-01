@@ -83,11 +83,11 @@ export class CreateProfileComponent implements OnInit {
         }
     ];
 
-    //用户自定义key、value，用于双向数据绑定
+   
     customizationKey = '';
     customizationValue = '';
 
-    //用户自定义项，用于
+    
     customizationItems = [];
 
     replicationTypeOptions = [

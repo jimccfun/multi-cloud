@@ -83,7 +83,6 @@ export class HomeComponent implements OnInit {
     ngOnInit() {
         if(this.paramStor.CURRENT_USER().split("|")[0] == "admin"){
             this.showAdminStatis = true;
-            // this.getCountData();
             this.getCounts();
             this.getType();
         }else{
@@ -214,7 +213,6 @@ export class HomeComponent implements OnInit {
             labels: [[], [], [], [], [],[],[]],
             datasets: [
                 {
-                    //label: 'First Dataset',
                     data: [2,4,8,11,14,16,21],
                     fill: true,
                     borderColor: '#4bc0c0'
@@ -229,8 +227,8 @@ export class HomeComponent implements OnInit {
                 let winW = document.documentElement.offsetWidth, winH = document.documentElement.offsetHeight;
                 let disX = 10, disY = 1;
                 let moveX = e.pageX * disX / (winW-320)*0.5, moveY = e.pageY * disY / winH;
-                that.scaleX = svgConW/240; // 240为svg原始宽度
-                that.scaleY = 5; //5.5 - moveY; 
+                that.scaleX = svgConW/240; 
+                that.scaleY = 5;
     
                 let clouds = [that.c_AWS.nativeElement, that.c_HW.nativeElement, that.c_HWP.nativeElement];
                 clouds.forEach((item, index) => {
@@ -536,7 +534,7 @@ export class HomeComponent implements OnInit {
             this.counts.migrationCount = res.json().plans ? res.json().plans.length : 0;
         });
     }
-    // // 创建backend
+    
     createBackend(){
         if(!this.backendForm.valid){
             for(let i in this.backendForm.controls){
