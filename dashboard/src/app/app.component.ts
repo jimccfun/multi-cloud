@@ -334,6 +334,7 @@ export class AppComponent implements OnInit, AfterViewInit{
 
                 if(this.username == "admin"){
                     this.menuItems = this.menuItems_admin;
+                    this.isHomePage = true;
                     this.dropMenuItems = [
                         { 
                             label: "Switch Region", 
@@ -346,6 +347,7 @@ export class AppComponent implements OnInit, AfterViewInit{
                     ];
                 }else{
                     this.menuItems = this.menuItems_tenant;
+                    this.isHomePage = false;
                     this.dropMenuItems = [
                         { 
                             label: "Switch Region", 
@@ -420,7 +422,7 @@ export class AppComponent implements OnInit, AfterViewInit{
 
     menuItemClick(event, item) {
         this.activeItem = item;
-        if(item.routerLink == "/home"){
+        if(item.routerLink == "/home" && this.username === "admin"){
             this.isHomePage = true;
         }else{
             this.isHomePage = false;
