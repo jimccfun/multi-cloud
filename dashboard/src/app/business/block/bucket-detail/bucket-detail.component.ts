@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router,ActivatedRoute} from '@angular/router';
 import { I18NService, Utils ,HttpService,Consts} from 'app/shared/api';
 import { BucketService} from '../buckets.service';
-// import { FileUploader } from 'ng2-file-upload';
 import { MenuItem ,ConfirmationService} from '../../../components/common/api';
 import { HttpClient } from '@angular/common/http';
 import {XHRBackend, RequestOptions, Request, RequestOptionsArgs, Response, Headers, BaseRequestOptions } from '@angular/http';
@@ -38,11 +37,13 @@ export class BucketDetailComponent implements OnInit {
   bucket;
   showCreateFolder = false;
   createFolderForm:FormGroup;
+  showErrorMsg = false;
   errorMessage = {
     "backend_type": { required: "Type is required." },
     "backend": { required: "Backend is required." }
   };
   uploadForm :FormGroup;
+  files;
   constructor(
     private ActivatedRoute: ActivatedRoute,
     public I18N:I18NService,
@@ -126,7 +127,17 @@ export class BucketDetailComponent implements OnInit {
     if(event.target.files[0]){
       let file = event.target.files[0];
       this.selectFile = file;
+      this.showErrorMsg = false;
     }
+  }
+
+  configUpload(){
+    this.showErrorMsg = false;
+    this.uploadDisplay = true;
+    this.showBackend = false;
+    this.uploadForm.reset();
+    this.files = '';
+    this.selectFile = '';
   }
 
   uploadPart(uploadId,options){
@@ -170,14 +181,15 @@ export class BucketDetailComponent implements OnInit {
     }
   }
   uploadload(blob, index, start, end,uploadId,options) {
-    let fd;
     let chunk;  
     chunk =blob.slice(start,end);
-    fd = new FormData();
-    fd.append("UpgradeFileName", chunk);
-    return this.BucketService.uploadFile(`${this.bucketId}/${blob.name}?partNumber=${index+1}&uploadId=${uploadId}`,fd,options).toPromise();
+    return this.BucketService.uploadFile(`${this.bucketId}/${blob.name}?partNumber=${index+1}&uploadId=${uploadId}`,chunk,options).toPromise();
   }
   uploadFile() {
+    if(!this.files){
+      this.showErrorMsg = true;
+      return;
+    }
     let headers = new Headers();
     headers.append('Content-Type', 'application/xml');
     if(this.showBackend){
@@ -206,9 +218,7 @@ export class BucketDetailComponent implements OnInit {
       });
       return;
     }
-    let form = new FormData();
-    form.append("file", this.selectFile,this.selectFile.name);
-    this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name,form,options).subscribe((res) => {
+    this.BucketService.uploadFile(this.bucketId+'/'+ this.selectFile.name,this.selectFile,options).subscribe((res) => {
       this.uploadDisplay = false;
       this.getAlldir();
     });

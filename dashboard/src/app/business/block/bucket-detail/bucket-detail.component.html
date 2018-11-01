@@ -8,7 +8,7 @@
     <div class="content-header">
         <div class="table-toolbar">
             <div class="left">
-                <button class="ui-button-secondary" pButton type="button" label="Upload" (click)="uploadDisplay=true"></button>
+                <button class="ui-button-secondary" pButton type="button" label="Upload" (click)="configUpload()"></button>
                 <button pButton type="button" [disabled]="true"  label="Create Folder" (click)="showDialog('fromFolder')" ></button>
                 <button pButton type="button" [disabled]="selectedDir.length === 0" (click)="deleteMultiDir()" label="{{I18N.keyID['sds_block_volume_delete']}}"></button>
             </div>
@@ -34,7 +34,19 @@
             </p-column>
         </p-dataTable>
         <p-dialog styleClass="upload-dialog"  header="Upload" [(visible)]="uploadDisplay" [width]="600" modal="modal">
-            <input type="file" placeholder="Please choose a file" (change)="selectedFileOnChanged($event)" />
+            <div class="a-upload">
+                <input type="file" [(ngModel)]="files" placeholder="Select File" (change)="selectedFileOnChanged($event)" />
+                <span>Select File</span>
+            </div>
+            <span class="file-name">{{selectFile ? selectFile.name : ''}}</span>
+            <div class="ui-message-container" *ngIf="showErrorMsg">
+                    <div class="ui-message ui-message-error ui-corner-all">
+                        <i class="fa fa-exclamation-circle" ></i>
+                        <span class="ui-message-error-text">
+                            please select file!
+                        </span>
+                    </div>
+                </div>
             <div style="padding:20px 0">
                 <p-checkbox (onChange)="showDetail()" name="specify"  value="true" [(ngModel)]="selectedSpecify" label="Specify the location of data storage. If not specified, store it to default backend."></p-checkbox>
             </div>
