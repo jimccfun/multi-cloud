@@ -221,7 +221,7 @@ export class HomeComponent implements OnInit {
         }
         let that = this;
         if(this.showAdminStatis){
-            document.body.onmousemove = function(e){
+            document.body.addEventListener('mousemove',function(e){
                 let initPos = 350;
                 let svgConW = that.svgCon.nativeElement.offsetWidth, svgConH = that.svgCon.nativeElement.offsetHeight;
                 let winW = document.documentElement.offsetWidth, winH = document.documentElement.offsetHeight;
@@ -242,7 +242,7 @@ export class HomeComponent implements OnInit {
                   item.style.top = (pos.y*that.scaleY + svgConH*(1 - that.scaleY)*0.5 - item.offsetHeight*0.6) +"px";
                   item.style.display = "block";
                 }) 
-            }
+            });
             this.initBucket2backendAnd2Type();
         }
         
